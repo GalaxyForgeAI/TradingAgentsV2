@@ -22,6 +22,9 @@ def create_app() -> FastAPI:
     from webapp.backend.routes.memory import router as memory_router
     app.include_router(memory_router)
 
+    from webapp.backend.routes.config import router as config_router
+    app.include_router(config_router)
+
     return app
 
 
