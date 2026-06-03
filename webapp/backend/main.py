@@ -16,6 +16,9 @@ def create_app() -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    from webapp.backend.routes.runs import router as runs_router
+    app.include_router(runs_router)
+
     return app
 
 
