@@ -1,9 +1,15 @@
 import type { MarketBar, MemoryEntry, ProviderHealth, RunRequest } from "./types";
 
-const base = "";
+// On the browser, use relative paths so Next.js rewrites proxy /api/* to the
+// backend. On the server (RSC/SSR) there is no origin to resolve a relative
+// URL against, so hit the backend directly via an absolute base URL.
+function apiBase(): string {
+  if (typeof window !== "undefined") return "";
+  return process.env.BACKEND_INTERNAL_URL ?? "http://localhost:8000";
+}
 
 async function json<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(base + path, {
+  const res = await fetch(apiBase() + path, {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
   });
