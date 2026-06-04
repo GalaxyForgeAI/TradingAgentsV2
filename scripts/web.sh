@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+#
+# Launch the TradingAgents Web Workbench: FastAPI backend on :8000 and the
+# Next.js dev server on :3000. The backend is stopped automatically when the
+# frontend exits (Ctrl-C). First-time setup: `cd webapp/frontend && npm install
+# --legacy-peer-deps`. See webapp/README.md for full documentation.
+#
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
