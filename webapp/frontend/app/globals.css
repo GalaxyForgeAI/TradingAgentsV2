@@ -1,8 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, "Inter", sans-serif;
+}
+
+/* Tabular figures for data/metrics so numbers don't jitter. */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subtle dotted grid backdrop for hero / marketing sections. */
+.bg-grid {
+  background-image: radial-gradient(circle at center, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Radial spotlight glow used behind the hero. */
+.bg-spotlight {
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgba(37, 99, 235, 0.18) 0%, transparent 70%),
+    radial-gradient(40% 40% at 85% 30%, rgba(217, 119, 6, 0.10) 0%, transparent 70%);
+}
+
+.text-glow {
+  text-shadow: 0 0 24px rgba(59, 130, 246, 0.35);
+}
+
+.ring-glow {
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25), 0 0 28px -6px rgba(59, 130, 246, 0.45);
+}
+
+/* Animated conic border for the primary CTA / featured cards. */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2.4s ease-in-out infinite;
+}
+
+@keyframes flow-dash {
+  to { stroke-dashoffset: -16; }
+}
+.animate-flow {
+  stroke-dasharray: 4 6;
+  animation: flow-dash 0.9s linear infinite;
+}
+
+/* Honor users who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-pulse-glow,
+  .animate-flow {
+    animation: none;
+  }
 }
