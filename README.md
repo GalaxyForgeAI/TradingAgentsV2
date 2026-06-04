@@ -195,6 +195,24 @@ An interface will appear showing results as they load, letting you track the age
   <img src="assets/cli/cli_transaction.png" width="100%" style="display: inline-block; margin: 0 2%;">
 </p>
 
+## Web Workbench
+
+Prefer a browser over the terminal? A web workbench wraps the same engine with a
+live-streaming UI: launch an analysis from a guided wizard, watch every agent work
+in real time, browse past decisions, and view per-ticker charts.
+
+```bash
+# First-time frontend setup
+cd webapp/frontend && npm install --legacy-peer-deps && cd ../..
+
+# Launch backend (:8000) + frontend (:3000)
+./scripts/web.sh
+```
+
+Then open <http://localhost:3000>. Full documentation — pages, HTTP/SSE API,
+environment variables, and testing — is in [`webapp/README.md`](webapp/README.md)
+([中文](webapp/README.zh-CN.md)).
+
 ## TradingAgents Package
 
 ### Implementation Details
