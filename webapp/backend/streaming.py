@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Any, Protocol
 
 from webapp.backend.schemas import (
     AgentName,
@@ -31,13 +31,18 @@ def _split_lines(prev: str, curr: str) -> list[str]:
     return [line for line in curr.splitlines() if line.strip()]
 
 
+class StatsProvider(Protocol):
+    def get_stats(self) -> dict[str, Any]: ...
+
+
 class StreamAdapter:
-    def __init__(self, run_id: str) -> None:
+    def __init__(self, run_id: str, stats: StatsProvider | None = None) -> None:
         self._run_id = run_id
         self._next_id = 1
         self._started = False
         self._started_at = time.monotonic()
         self._prev: dict[str, Any] = {}
+        self._stats = stats
 
     def _next(self, event_type: EventType, payload: dict[str, Any]) -> EventEnvelope:
         evt = EventEnvelope(id=self._next_id, type=event_type, run_id=self._run_id, payload=payload)
@@ -111,10 +116,16 @@ class StreamAdapter:
                         )
                     )
 
+        stats = self._stats.get_stats() if self._stats is not None else {}
         events.append(
             self._next(
                 EventType.METRICS_TICK,
-                {"elapsed_ms": int((time.monotonic() - self._started_at) * 1000)},
+                {
+                    "llm_calls": int(stats.get("llm_calls", 0)),
+                    "tokens_in": int(stats.get("tokens_in", 0)),
+                    "tokens_out": int(stats.get("tokens_out", 0)),
+                    "elapsed_ms": int((time.monotonic() - self._started_at) * 1000),
+                },
             )
         )
 

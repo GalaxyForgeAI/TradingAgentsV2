@@ -10,7 +10,7 @@ from webapp.backend.routes import runs as runs_route
 
 @pytest.mark.asyncio
 async def test_post_run_returns_run_id_and_stream_completes(stub_graph, monkeypatch):
-    monkeypatch.setattr(runs_route, "_graph_factory", lambda req: stub_graph)
+    monkeypatch.setattr(runs_route, "_graph_factory", lambda req, callbacks=None: stub_graph)
     app = create_app()
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:

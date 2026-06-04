@@ -45,3 +45,51 @@ def test_multiline_debate_message_keeps_single_round():
     from webapp.backend.schemas import EventType
     rounds = [e.payload["round"] for e in events if e.type == EventType.DEBATE_MESSAGE]
     assert rounds == [1, 1, 1]
+
+
+def _ai_message_result(tokens_in: int, tokens_out: int):
+    from langchain_core.messages import AIMessage
+    from langchain_core.outputs import ChatGeneration, LLMResult
+
+    message = AIMessage(
+        content="ok",
+        usage_metadata={
+            "input_tokens": tokens_in,
+            "output_tokens": tokens_out,
+            "total_tokens": tokens_in + tokens_out,
+        },
+    )
+    return LLMResult(generations=[[ChatGeneration(message=message)]])
+
+
+def test_metrics_tick_reflects_running_stats():
+    from cli.stats_handler import StatsCallbackHandler
+
+    stats = StatsCallbackHandler()
+    a = StreamAdapter(run_id="r1", stats=stats)
+
+    # First tick: no LLM activity yet.
+    first = a.translate({"company_of_interest": "AAPL", "trade_date": "2026-01-15"})
+    first_tick = next(e for e in first if e.type == EventType.METRICS_TICK)
+    assert first_tick.payload["llm_calls"] == 0
+    assert first_tick.payload["tokens_in"] == 0
+    assert first_tick.payload["tokens_out"] == 0
+
+    # Simulate one LLM call with token usage between ticks.
+    stats.on_chat_model_start({}, [])
+    stats.on_llm_end(_ai_message_result(tokens_in=120, tokens_out=40))
+
+    second = a.translate({"market_report": "x"})
+    second_tick = next(e for e in second if e.type == EventType.METRICS_TICK)
+    assert second_tick.payload["llm_calls"] == 1
+    assert second_tick.payload["tokens_in"] == 120
+    assert second_tick.payload["tokens_out"] == 40
+
+
+def test_metrics_tick_defaults_to_zero_without_stats():
+    a = StreamAdapter(run_id="r1")
+    events = a.translate({"company_of_interest": "AAPL", "trade_date": "2026-01-15"})
+    tick = next(e for e in events if e.type == EventType.METRICS_TICK)
+    assert tick.payload["llm_calls"] == 0
+    assert tick.payload["tokens_in"] == 0
+    assert tick.payload["tokens_out"] == 0

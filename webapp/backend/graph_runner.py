@@ -7,6 +7,7 @@ import traceback
 import uuid
 from typing import Any, Callable, Protocol
 
+from cli.stats_handler import StatsCallbackHandler
 from webapp.backend.run_registry import RunRegistry
 from webapp.backend.schemas import RunRequest
 from webapp.backend.streaming import StreamAdapter
@@ -20,7 +21,7 @@ class GraphRunner:
     def __init__(
         self,
         registry: RunRegistry,
-        graph_factory: Callable[[RunRequest], GraphLike],
+        graph_factory: Callable[[RunRequest, list[Any]], GraphLike],
         max_concurrent: int = 2,
     ) -> None:
         self._registry = registry
@@ -48,14 +49,18 @@ class GraphRunner:
         return False
 
     async def _run(self, run_id: str, request: RunRequest) -> None:
-        adapter = StreamAdapter(run_id=run_id)
+        # One shared stats handler: wired into the graph's LLMs/tools as a
+        # callback (so it accumulates real LLM/token counts) and read by the
+        # StreamAdapter so each metrics.tick carries those running totals.
+        stats = StatsCallbackHandler()
+        adapter = StreamAdapter(run_id=run_id, stats=stats)
         async with self._semaphore:
             chunk_q: _queue_mod.Queue = _queue_mod.Queue(maxsize=64)
             _DONE = object()
 
             def _producer():
                 try:
-                    graph = self._factory(request)
+                    graph = self._factory(request, [stats])
                     for chunk in graph.stream(request.ticker, request.trade_date):
                         chunk_q.put(chunk)
                 except Exception as exc:  # noqa: BLE001

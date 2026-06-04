@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/runs", tags=["runs"])
 _registry = RunRegistry()
 
 
-def _graph_factory(req: RunRequest) -> Any:
+def _graph_factory(req: RunRequest, callbacks: list[Any] | None = None) -> Any:
     """Default factory; overridden in tests."""
     from tradingagents.default_config import DEFAULT_CONFIG
     from tradingagents.graph.trading_graph import TradingAgentsGraph
@@ -37,10 +37,13 @@ def _graph_factory(req: RunRequest) -> Any:
         selected_analysts=req.analysts,
         debug=False,
         config=config,
+        callbacks=callbacks or [],
     )
 
 
-_runner = GraphRunner(_registry, graph_factory=lambda req: _graph_factory(req))
+_runner = GraphRunner(
+    _registry, graph_factory=lambda req, callbacks: _graph_factory(req, callbacks)
+)
 
 
 @router.post("", status_code=201)
