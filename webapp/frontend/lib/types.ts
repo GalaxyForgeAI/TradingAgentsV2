@@ -30,6 +30,7 @@ export interface RunRequest {
   temperature?: number;
   checkpoint_enabled?: boolean;
   output_language?: string;
+  backend_url?: string | null;
 }
 
 export interface MemoryEntry {
@@ -58,4 +59,8 @@ export interface ProviderHealth {
   label: string;
   env_key: string;
   configured: boolean;
+  default_base_url: string | null;
+  openai_compatible: boolean;
+  default_deep_model: string | null;
+  default_quick_model: string | null;
 }

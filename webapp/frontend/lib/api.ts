@@ -29,6 +29,8 @@ export const api = {
     return json<{ entries: MemoryEntry[] }>(`/api/runs?${qs.toString()}`);
   },
   config: () => json<Record<string, unknown>>("/api/config"),
+  putConfig: (updates: Record<string, unknown>) =>
+    json<Record<string, unknown>>("/api/config", { method: "PUT", body: JSON.stringify(updates) }),
   providers: () => json<{ providers: ProviderHealth[] }>("/api/providers/health"),
   market: (ticker: string, range = "6mo") =>
     json<{ ticker: string; bars: MarketBar[] }>(`/api/markets/${encodeURIComponent(ticker)}?range=${range}`),
