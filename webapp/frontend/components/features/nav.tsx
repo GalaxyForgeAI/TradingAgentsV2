@@ -4,14 +4,16 @@ import { clsx } from "clsx";
 import { Activity } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
-const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/runs", label: "Runs" },
-  { href: "/runs/new", label: "New" },
-  { href: "/compare", label: "Compare" },
-  { href: "/settings", label: "Settings" },
+import { LanguageSwitcher } from "@/components/features/language-switcher";
+
+const LINKS: { href: string; key: "dashboard" | "runs" | "new" | "compare" | "settings" }[] = [
+  { href: "/dashboard", key: "dashboard" },
+  { href: "/runs", key: "runs" },
+  { href: "/runs/new", key: "new" },
+  { href: "/compare", key: "compare" },
+  { href: "/settings", key: "settings" },
 ];
 
 function isActive(path: string, href: string): boolean {
@@ -21,6 +23,7 @@ function isActive(path: string, href: string): boolean {
 
 export function Nav() {
   const path = usePathname();
+  const t = useTranslations("nav");
   return (
     <nav className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur supports-[backdrop-filter]:bg-zinc-950/60">
       <div className="mx-auto flex max-w-7xl items-center gap-1 px-4 py-3 sm:px-6">
@@ -33,7 +36,7 @@ export function Nav() {
           </span>
         </Link>
         <ul className="flex items-center gap-0.5 overflow-x-auto text-sm">
-          {LINKS.slice(1).map((l) => {
+          {LINKS.map((l) => {
             const active = isActive(path, l.href);
             return (
               <li key={l.href}>
@@ -45,7 +48,7 @@ export function Nav() {
                     active ? "text-zinc-50" : "text-zinc-400 hover:text-zinc-100",
                   )}
                 >
-                  {l.label}
+                  {t(l.key)}
                   {active && (
                     <span className="absolute inset-x-2 -bottom-px h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent" />
                   )}
@@ -54,6 +57,7 @@ export function Nav() {
             );
           })}
         </ul>
+        <LanguageSwitcher />
       </div>
     </nav>
   );
