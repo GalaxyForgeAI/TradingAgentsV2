@@ -1,5 +1,7 @@
 # TradingAgents Web Workbench
 
+> **English** | [中文](./README.zh-CN.md)
+
 A browser-based workbench for the TradingAgents multi-agent trading framework. It
 wraps the existing `TradingAgentsGraph` engine with a live-streaming UI: launch an
 analysis, watch every agent (analysts → researchers → trader → risk → portfolio

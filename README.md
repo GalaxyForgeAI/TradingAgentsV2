@@ -210,7 +210,8 @@ cd webapp/frontend && npm install --legacy-peer-deps && cd ../..
 ```
 
 Then open <http://localhost:3000>. Full documentation — pages, HTTP/SSE API,
-environment variables, and testing — is in [`webapp/README.md`](webapp/README.md).
+environment variables, and testing — is in [`webapp/README.md`](webapp/README.md)
+([中文](webapp/README.zh-CN.md)).
 
 ## TradingAgents Package
 

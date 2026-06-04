@@ -1,5 +1,7 @@
 # TradingAgents Web Workbench — Design
 
+> **English** | [中文](./2026-06-04-frontend-workbench-design.zh-CN.md)
+
 - **Status**: Draft
 - **Date**: 2026-06-04
 - **Owner**: Frontend Workbench

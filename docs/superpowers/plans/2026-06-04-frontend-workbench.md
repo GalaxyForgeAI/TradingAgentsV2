@@ -1,5 +1,7 @@
 # TradingAgents Web Workbench Implementation Plan
 
+> **English** | [中文](./2026-06-04-frontend-workbench.zh-CN.md)
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a Next.js 15 + FastAPI workbench that wraps the existing `TradingAgentsGraph` engine with live streaming, run history, replay, multi-run comparison, per-ticker chart overlays, and config management.
