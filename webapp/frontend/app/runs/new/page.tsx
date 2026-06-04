@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
-import type { RunRequest } from "@/lib/types";
+import type { ProviderHealth, RunRequest } from "@/lib/types";
 
 const ANALYSTS = [
   { id: "market", label: "Market" },
@@ -13,9 +13,16 @@ const ANALYSTS = [
   { id: "fundamentals", label: "Fundamentals" },
 ] as const;
 
+const LANGUAGES = [
+  { value: "English", label: "English" },
+  { value: "Chinese", label: "Chinese (中文)" },
+  { value: "Japanese", label: "Japanese (日本語)" },
+];
+
 export default function NewRun() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [providers, setProviders] = useState<ProviderHealth[]>([]);
   const [form, setForm] = useState<RunRequest>({
     ticker: "AAPL",
     trade_date: new Date().toISOString().slice(0, 10),
@@ -25,14 +32,51 @@ export default function NewRun() {
     max_risk_discuss_rounds: 1,
     output_language: "English",
   });
+  const [customLang, setCustomLang] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const [cfg, ph] = await Promise.all([api.config(), api.providers()]);
+        if (!alive) return;
+        setProviders(ph.providers);
+        setForm((f) => ({
+          ...f,
+          llm_provider: (cfg.llm_provider as string) ?? f.llm_provider,
+          deep_think_llm: (cfg.deep_think_llm as string) ?? f.deep_think_llm,
+          quick_think_llm: (cfg.quick_think_llm as string) ?? f.quick_think_llm,
+          temperature: cfg.temperature as number | undefined,
+          backend_url: (cfg.backend_url as string | null) ?? null,
+          output_language: (cfg.output_language as string) ?? "English",
+        }));
+      } catch {
+        // fall through to hardcoded defaults
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const selectedProvider = useMemo(
+    () => providers.find((p) => p.id === form.llm_provider),
+    [providers, form.llm_provider],
+  );
 
   async function submit() {
     setSubmitting(true);
     setError(null);
     try {
-      const { run_id } = await api.createRun(form);
+      const payload: RunRequest = {
+        ...form,
+        output_language:
+          form.output_language === "__custom__" ? customLang || "English" : form.output_language,
+        backend_url: form.backend_url ? form.backend_url.replace(/\/+$/, "") : null,
+      };
+      const { run_id } = await api.createRun(payload);
       router.push(`/runs/${run_id}`);
     } catch (e) {
       setError((e as Error).message);
@@ -43,12 +87,11 @@ export default function NewRun() {
   return (
     <main className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-semibold">New Analysis</h1>
-
       <div className="mb-6 flex gap-2">
         {[1, 2, 3, 4].map((n) => (
           <div
             key={n}
-            className={`h-1 flex-1 rounded ${n <= step ? "bg-zinc-900 dark:bg-zinc-100" : "bg-zinc-200 dark:bg-zinc-800"}`}
+            className={`h-1 flex-1 rounded ${n <= step ? "bg-zinc-100" : "bg-zinc-800"}`}
           />
         ))}
       </div>
@@ -59,7 +102,7 @@ export default function NewRun() {
             <input
               value={form.ticker}
               onChange={(e) => setForm({ ...form, ticker: e.target.value })}
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
             />
           </Field>
           <Field label="Trade date">
@@ -67,7 +110,7 @@ export default function NewRun() {
               type="date"
               value={form.trade_date}
               onChange={(e) => setForm({ ...form, trade_date: e.target.value })}
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
             />
           </Field>
         </div>
@@ -84,10 +127,14 @@ export default function NewRun() {
                 onClick={() =>
                   setForm({
                     ...form,
-                    analysts: on ? form.analysts!.filter((x) => x !== a.id) : [...form.analysts!, a.id],
+                    analysts: on
+                      ? form.analysts!.filter((x) => x !== a.id)
+                      : [...form.analysts!, a.id],
                   })
                 }
-                className={`rounded-md border p-4 text-left ${on ? "border-zinc-900 bg-zinc-100 dark:border-zinc-100 dark:bg-zinc-900" : "border-zinc-200 dark:border-zinc-800"}`}
+                className={`rounded-md border p-4 text-left ${
+                  on ? "border-zinc-100 bg-zinc-900" : "border-zinc-800"
+                }`}
               >
                 <div className="font-medium">{a.label}</div>
               </button>
@@ -102,10 +149,13 @@ export default function NewRun() {
             <select
               value={form.llm_provider}
               onChange={(e) => setForm({ ...form, llm_provider: e.target.value })}
-              className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
             >
-              {["openai", "anthropic", "google", "xai", "deepseek", "qwen", "qwen-cn", "glm", "glm-cn", "minimax", "minimax-cn", "openrouter", "ollama"].map((p) => (
-                <option key={p} value={p}>{p}</option>
+              {providers.map((p) => (
+                <option key={p.id} value={p.id} disabled={!p.configured}>
+                  {p.label}
+                  {!p.configured ? " (missing key)" : ""}
+                </option>
               ))}
             </select>
           </Field>
@@ -113,18 +163,35 @@ export default function NewRun() {
             <Field label="Deep think model (optional)">
               <input
                 value={form.deep_think_llm ?? ""}
-                onChange={(e) => setForm({ ...form, deep_think_llm: e.target.value || undefined })}
-                className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
+                placeholder={selectedProvider?.default_deep_model ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, deep_think_llm: e.target.value || undefined })
+                }
+                className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
               />
             </Field>
             <Field label="Quick think model (optional)">
               <input
                 value={form.quick_think_llm ?? ""}
-                onChange={(e) => setForm({ ...form, quick_think_llm: e.target.value || undefined })}
-                className="w-full rounded border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950"
+                placeholder={selectedProvider?.default_quick_model ?? ""}
+                onChange={(e) =>
+                  setForm({ ...form, quick_think_llm: e.target.value || undefined })
+                }
+                className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
               />
             </Field>
           </div>
+          <Field label="API base URL (optional)">
+            <input
+              type="url"
+              value={form.backend_url ?? ""}
+              placeholder={selectedProvider?.default_base_url ?? "https://..."}
+              onChange={(e) =>
+                setForm({ ...form, backend_url: e.target.value || null })
+              }
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </Field>
         </div>
       )}
 
@@ -136,7 +203,9 @@ export default function NewRun() {
               min={1}
               max={5}
               value={form.max_debate_rounds}
-              onChange={(e) => setForm({ ...form, max_debate_rounds: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, max_debate_rounds: Number(e.target.value) })
+              }
               className="w-full"
             />
           </Field>
@@ -146,15 +215,55 @@ export default function NewRun() {
               min={1}
               max={5}
               value={form.max_risk_discuss_rounds}
-              onChange={(e) => setForm({ ...form, max_risk_discuss_rounds: Number(e.target.value) })}
+              onChange={(e) =>
+                setForm({ ...form, max_risk_discuss_rounds: Number(e.target.value) })
+              }
               className="w-full"
             />
           </Field>
+          <Field label="Output language (what the agents write in)">
+            <select
+              value={
+                LANGUAGES.find((l) => l.value === form.output_language)
+                  ? form.output_language
+                  : "__custom__"
+              }
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "__custom__") {
+                  setCustomLang(form.output_language ?? "");
+                  setForm({ ...form, output_language: "__custom__" });
+                } else {
+                  setForm({ ...form, output_language: v });
+                }
+              }}
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
+            >
+              {LANGUAGES.map((l) => (
+                <option key={l.value} value={l.value}>
+                  {l.label}
+                </option>
+              ))}
+              <option value="__custom__">Custom…</option>
+            </select>
+          </Field>
+          {form.output_language === "__custom__" && (
+            <Field label="Custom language name">
+              <input
+                value={customLang}
+                onChange={(e) => setCustomLang(e.target.value)}
+                placeholder="e.g. Korean"
+                className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
+              />
+            </Field>
+          )}
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               checked={form.checkpoint_enabled}
-              onChange={(e) => setForm({ ...form, checkpoint_enabled: e.target.checked })}
+              onChange={(e) =>
+                setForm({ ...form, checkpoint_enabled: e.target.checked })
+              }
             />
             Enable checkpoint resume
           </label>
@@ -166,7 +275,7 @@ export default function NewRun() {
           type="button"
           onClick={() => setStep((s) => Math.max(1, s - 1))}
           disabled={step === 1}
-          className="rounded border border-zinc-300 px-4 py-2 text-sm disabled:opacity-50 dark:border-zinc-700"
+          className="rounded border border-zinc-700 px-4 py-2 text-sm disabled:opacity-50"
         >
           Back
         </button>
@@ -174,7 +283,7 @@ export default function NewRun() {
           <button
             type="button"
             onClick={() => setStep((s) => s + 1)}
-            className="rounded bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
+            className="rounded bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900"
           >
             Next
           </button>
@@ -189,7 +298,7 @@ export default function NewRun() {
           </button>
         )}
       </div>
-      {error && <div className="mt-4 text-sm text-red-600">{error}</div>}
+      {error && <div className="mt-4 text-sm text-red-500">{error}</div>}
     </main>
   );
 }
