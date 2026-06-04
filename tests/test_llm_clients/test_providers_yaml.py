@@ -58,3 +58,48 @@ def test_invalid_client_value_raises(tmp_path, monkeypatch):
     with pytest.raises(ProviderConfigError):
         get_providers()
     _providers.cache_clear()
+
+
+def test_create_llm_client_routes_to_openai_for_compatible(monkeypatch):
+    from tradingagents.llm_clients import factory
+
+    seen = {}
+
+    class Stub:
+        def __init__(self, model, base_url, **kw):
+            seen["model"] = model
+            seen["base_url"] = base_url
+            seen["provider"] = kw.get("provider")
+
+    _providers.cache_clear()
+    monkeypatch.setattr(
+        "tradingagents.llm_clients.openai_client.OpenAIClient", Stub
+    )
+    factory.create_llm_client("xai", "grok-4", base_url="https://corp/proxy")
+    assert seen["model"] == "grok-4"
+    assert seen["base_url"] == "https://corp/proxy"
+    assert seen["provider"] == "xai"
+
+
+def test_create_llm_client_falls_back_to_default_base_url(monkeypatch):
+    from tradingagents.llm_clients import factory
+
+    seen = {}
+
+    class Stub:
+        def __init__(self, model, base_url, **kw):
+            seen["base_url"] = base_url
+
+    _providers.cache_clear()
+    monkeypatch.setattr(
+        "tradingagents.llm_clients.openai_client.OpenAIClient", Stub
+    )
+    factory.create_llm_client("deepseek", "deepseek-chat")
+    assert seen["base_url"] == "https://api.deepseek.com"
+
+
+def test_create_llm_client_unknown_provider_raises():
+    from tradingagents.llm_clients.factory import create_llm_client
+
+    with pytest.raises(ValueError, match="Unsupported"):
+        create_llm_client("nonesuch", "model")
