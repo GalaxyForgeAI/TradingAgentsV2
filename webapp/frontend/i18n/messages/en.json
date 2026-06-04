@@ -1,1 +1,22 @@
-{}
+{
+  "common": {
+    "back": "Back",
+    "next": "Next",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saved": "Saved",
+    "saving": "Saving…",
+    "loading": "Loading…",
+    "error": "Error",
+    "optional": "optional",
+    "missingKey": "Missing key",
+    "configured": "Configured"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "runs": "Runs",
+    "new": "New",
+    "compare": "Compare",
+    "settings": "Settings"
+  }
+}
