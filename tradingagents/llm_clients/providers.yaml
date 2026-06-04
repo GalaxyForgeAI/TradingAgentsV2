@@ -1,0 +1,84 @@
+- id: openai
+  label: OpenAI
+  env_key: OPENAI_API_KEY
+  openai_compatible: true
+  default_base_url: null
+  default_deep_model: gpt-5.5
+  default_quick_model: gpt-5.4-mini
+
+- id: anthropic
+  label: Anthropic
+  env_key: ANTHROPIC_API_KEY
+  openai_compatible: false
+  client: anthropic
+
+- id: google
+  label: Google
+  env_key: GOOGLE_API_KEY
+  openai_compatible: false
+  client: google
+
+- id: azure
+  label: Azure OpenAI
+  env_key: AZURE_OPENAI_API_KEY
+  openai_compatible: false
+  client: azure
+
+- id: xai
+  label: xAI
+  env_key: XAI_API_KEY
+  openai_compatible: true
+
+- id: deepseek
+  label: DeepSeek
+  env_key: DEEPSEEK_API_KEY
+  openai_compatible: true
+  default_base_url: https://api.deepseek.com
+
+- id: qwen
+  label: Qwen (International)
+  env_key: DASHSCOPE_API_KEY
+  openai_compatible: true
+  default_base_url: https://dashscope-intl.aliyuncs.com/compatible-mode/v1
+
+- id: qwen-cn
+  label: Qwen (China)
+  env_key: DASHSCOPE_CN_API_KEY
+  openai_compatible: true
+  default_base_url: https://dashscope.aliyuncs.com/compatible-mode/v1
+
+- id: glm
+  label: GLM (Z.AI international)
+  env_key: ZHIPU_API_KEY
+  openai_compatible: true
+  default_base_url: https://api.z.ai/api/paas/v4
+
+- id: glm-cn
+  label: GLM (China)
+  env_key: ZHIPU_CN_API_KEY
+  openai_compatible: true
+  default_base_url: https://open.bigmodel.cn/api/paas/v4
+
+- id: minimax
+  label: MiniMax (Global)
+  env_key: MINIMAX_API_KEY
+  openai_compatible: true
+  default_base_url: https://api.minimax.io/v1
+
+- id: minimax-cn
+  label: MiniMax (China)
+  env_key: MINIMAX_CN_API_KEY
+  openai_compatible: true
+  default_base_url: https://api.minimaxi.com/v1
+
+- id: openrouter
+  label: OpenRouter
+  env_key: OPENROUTER_API_KEY
+  openai_compatible: true
+  default_base_url: https://openrouter.ai/api/v1
+
+- id: ollama
+  label: Ollama (local)
+  env_key: ""
+  openai_compatible: true
+  default_base_url: http://localhost:11434/v1
