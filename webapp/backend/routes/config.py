@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+
+from webapp.backend import workbench_config
 
 router = APIRouter(prefix="/api/config", tags=["config"])
 
@@ -31,7 +33,7 @@ _SAFE_KEYS = {
 }
 
 
-def _safe_config() -> dict[str, Any]:
+def _safe_defaults() -> dict[str, Any]:
     from tradingagents.default_config import DEFAULT_CONFIG
 
     return {k: v for k, v in DEFAULT_CONFIG.items() if k in _SAFE_KEYS}
@@ -39,4 +41,13 @@ def _safe_config() -> dict[str, Any]:
 
 @router.get("")
 def get_config() -> dict[str, Any]:
-    return _safe_config()
+    return {**_safe_defaults(), **workbench_config.load()}
+
+
+@router.put("")
+def put_config(updates: dict[str, Any]) -> dict[str, Any]:
+    try:
+        merged = workbench_config.save(updates)
+    except workbench_config.InvalidConfigKey as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {**_safe_defaults(), **merged}
