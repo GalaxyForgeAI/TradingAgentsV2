@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "check:messages": "tsx scripts/check-messages.ts",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
