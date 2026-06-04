@@ -4,7 +4,7 @@ import enum
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AnyHttpUrl, BaseModel, Field, field_validator
 
 
 class AgentName(str, enum.Enum):
@@ -48,6 +48,7 @@ class RunRequest(BaseModel):
     max_debate_rounds: int = Field(default=1, ge=1, le=10)
     max_risk_discuss_rounds: int = Field(default=1, ge=1, le=10)
     temperature: float | None = Field(default=None, ge=0.0, le=2.0)
+    backend_url: AnyHttpUrl | None = None
     checkpoint_enabled: bool = False
     output_language: str = "English"
 

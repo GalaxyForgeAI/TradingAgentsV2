@@ -27,6 +27,8 @@ def _graph_factory(req: RunRequest, callbacks: list[Any] | None = None) -> Any:
         config["quick_think_llm"] = req.quick_think_llm
     if req.temperature is not None:
         config["temperature"] = req.temperature
+    if req.backend_url is not None:
+        config["backend_url"] = str(req.backend_url).rstrip("/")
     config["llm_provider"] = req.llm_provider
     config["max_debate_rounds"] = req.max_debate_rounds
     config["max_risk_discuss_rounds"] = req.max_risk_discuss_rounds
