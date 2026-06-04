@@ -39,3 +39,20 @@ async def test_runner_emits_error_when_graph_raises(stub_graph):
     err_events = [e for e in state.buffer if e.type == EventType.RUN_ERROR]
     assert len(err_events) == 1
     assert "boom" in err_events[0].payload["message"]
+
+
+@pytest.mark.asyncio
+async def test_errored_run_has_no_run_done(stub_graph):
+    class BrokenGraph(type(stub_graph)):
+        def stream(self, ticker, trade_date):
+            yield {"company_of_interest": ticker, "trade_date": trade_date}
+            raise RuntimeError("boom")
+
+    registry = RunRegistry()
+    runner = GraphRunner(registry=registry, graph_factory=lambda req: BrokenGraph())
+    req = RunRequest(ticker="AAPL", trade_date="2026-01-15")
+    run_id = await runner.start(req)
+    await runner.wait(run_id)
+    types = [e.type for e in registry.get(run_id).buffer]
+    assert EventType.RUN_ERROR in types
+    assert EventType.RUN_DONE not in types

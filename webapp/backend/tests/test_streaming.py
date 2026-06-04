@@ -36,3 +36,12 @@ def test_event_ids_are_monotonic():
     ids = [e.id for e in e1 + e2]
     assert ids == sorted(ids)
     assert ids[0] == 1
+
+
+def test_multiline_debate_message_keeps_single_round():
+    a = StreamAdapter(run_id="r1")
+    a.translate({"company_of_interest": "AAPL", "trade_date": "2026-01-15"})
+    events = a.translate({"investment_debate_state": {"bull_history": "line1\nline2\nline3", "bear_history": "", "count": 0}})
+    from webapp.backend.schemas import EventType
+    rounds = [e.payload["round"] for e in events if e.type == EventType.DEBATE_MESSAGE]
+    assert rounds == [1, 1, 1]

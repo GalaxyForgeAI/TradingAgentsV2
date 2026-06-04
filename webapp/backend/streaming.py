@@ -78,13 +78,13 @@ class StreamAdapter:
             prev_debate = self._prev.get("investment_debate_state", {}) or {}
             for side, key in (("bull", "bull_history"), ("bear", "bear_history")):
                 new_lines = _split_lines(prev_debate.get(key, ""), debate.get(key, ""))
-                for i, line in enumerate(new_lines):
+                for line in new_lines:
                     events.append(
                         self._next(
                             EventType.DEBATE_MESSAGE,
                             {
                                 "side": side,
-                                "round": int(debate.get("count", 0)) // 2 + i + 1,
+                                "round": int(debate.get("count", 0)) // 2 + 1,
                                 "text": line,
                             },
                         )
@@ -99,13 +99,13 @@ class StreamAdapter:
                 ("neutral", "neutral_history"),
             ):
                 new_lines = _split_lines(prev_risk.get(key, ""), risk.get(key, ""))
-                for i, line in enumerate(new_lines):
+                for line in new_lines:
                     events.append(
                         self._next(
                             EventType.DEBATE_MESSAGE,
                             {
                                 "side": side,
-                                "round": int(risk.get("count", 0)) // 3 + i + 1,
+                                "round": int(risk.get("count", 0)) // 3 + 1,
                                 "text": line,
                             },
                         )

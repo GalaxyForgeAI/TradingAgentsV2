@@ -42,6 +42,8 @@ class RunRegistry:
     async def complete(self, run_id: str) -> None:
         async with self._lock:
             state = self.get(run_id)
+            if state.completed:
+                return
             state.completed = True
             for q in state.subscribers:
                 await q.put(None)  # type: ignore[arg-type]
@@ -52,8 +54,8 @@ class RunRegistry:
         state = self.get(run_id)
         queue: asyncio.Queue[EventEnvelope] = asyncio.Queue()
 
-        backlog = [e for e in state.buffer if last_event_id is None or e.id > last_event_id]
         async with self._lock:
+            backlog = [e for e in state.buffer if last_event_id is None or e.id > last_event_id]
             state.subscribers.append(queue)
 
         try:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pandas as pd
@@ -20,6 +21,9 @@ def market(ticker: str, range_: str = Query(default="6mo", alias="range")) -> di
     ticker = ticker.strip().upper()
     if not ticker:
         raise HTTPException(status_code=400, detail="empty ticker")
+
+    if not re.match(r"^[A-Z0-9.\-^]{1,24}$", ticker):
+        raise HTTPException(status_code=400, detail="invalid ticker format")
 
     df = _fetch_ohlc(ticker, range_)
     if df.empty:

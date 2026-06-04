@@ -32,3 +32,11 @@ async def test_markets_returns_bars(monkeypatch):
         assert body["ticker"] == "AAPL"
         assert len(body["bars"]) == 5
         assert {"t", "o", "h", "l", "c", "v"} <= set(body["bars"][0].keys())
+
+
+@pytest.mark.asyncio
+async def test_markets_rejects_bad_ticker():
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        resp = await client.get("/api/markets/..%2F..%2Fetc")
+        assert resp.status_code in (400, 404)

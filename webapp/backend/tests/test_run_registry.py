@@ -40,3 +40,13 @@ def test_unknown_run_raises():
     reg = RunRegistry()
     with pytest.raises(KeyError):
         reg.get("missing")
+
+
+@pytest.mark.asyncio
+async def test_complete_is_idempotent():
+    reg = RunRegistry(ring_size=10)
+    reg.create("r1")
+    await reg.complete("r1")
+    await reg.complete("r1")  # must not raise / not double-sentinel
+    state = reg.get("r1")
+    assert state.completed is True

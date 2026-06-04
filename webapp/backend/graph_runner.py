@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import queue as _queue_mod
+import threading
 import traceback
 import uuid
 from typing import Any, Callable, Protocol
@@ -48,30 +50,42 @@ class GraphRunner:
     async def _run(self, run_id: str, request: RunRequest) -> None:
         adapter = StreamAdapter(run_id=run_id)
         async with self._semaphore:
-            try:
-                graph = self._factory(request)
-                loop = asyncio.get_running_loop()
-                iterator = graph.stream(request.ticker, request.trade_date)
+            chunk_q: _queue_mod.Queue = _queue_mod.Queue(maxsize=64)
+            _DONE = object()
 
+            def _producer():
+                try:
+                    graph = self._factory(request)
+                    for chunk in graph.stream(request.ticker, request.trade_date):
+                        chunk_q.put(chunk)
+                except Exception as exc:  # noqa: BLE001
+                    chunk_q.put(("__error__", exc, traceback.format_exc()))
+                finally:
+                    chunk_q.put(_DONE)
+
+            loop = asyncio.get_running_loop()
+            thread = threading.Thread(target=_producer, daemon=True)
+            thread.start()
+
+            errored = False
+            try:
                 while True:
-                    chunk = await loop.run_in_executor(None, lambda: next(iterator, _SENTINEL))
-                    if chunk is _SENTINEL:
+                    item = await loop.run_in_executor(None, chunk_q.get)
+                    if item is _DONE:
                         break
-                    for evt in adapter.translate(chunk):
+                    if isinstance(item, tuple) and len(item) == 3 and item[0] == "__error__":
+                        errored = True
+                        await self._registry.publish(run_id, adapter.error(str(item[1]), item[2]))
+                        continue
+                    for evt in adapter.translate(item):
                         await self._registry.publish(run_id, evt)
 
-                decision = self._registry.get(run_id).buffer
-                final_decision = ""
-                for e in reversed(decision):
-                    if e.payload.get("field") == "final_trade_decision":
-                        final_decision = e.payload["markdown"]
-                        break
-                await self._registry.publish(run_id, adapter.final(final_decision, None))
-            except Exception as exc:  # noqa: BLE001
-                stack = traceback.format_exc()
-                await self._registry.publish(run_id, adapter.error(str(exc), stack))
+                if not errored:
+                    final_decision = ""
+                    for e in reversed(self._registry.get(run_id).buffer):
+                        if e.payload.get("field") == "final_trade_decision":
+                            final_decision = e.payload["markdown"]
+                            break
+                    await self._registry.publish(run_id, adapter.final(final_decision, None))
             finally:
                 await self._registry.complete(run_id)
-
-
-_SENTINEL: Any = object()
