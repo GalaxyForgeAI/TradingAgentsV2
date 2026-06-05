@@ -70,6 +70,8 @@ browser requests need no extra config.
 | `/compare` | Placeholder for multi-run comparison (see Known limitations). |
 | `/settings` | Provider health (which API keys are configured) and the effective default config. |
 
+The workbench ships in English and Simplified Chinese. The nav has an `EN / 中` switcher; selection persists in a cookie. The agent **output** language (what the analysts write in) is independent of the UI language and is set per run in the wizard's Step 4.
+
 ## HTTP API
 
 The backend is a small FastAPI app (`webapp/backend/main.py`). All endpoints are
@@ -83,6 +85,7 @@ under `/api`.
 | `POST` | `/api/runs/{run_id}/cancel` | Cancel an in-flight run. |
 | `GET` | `/api/runs?source=memory` | Read the decision log. Optional `ticker` and `pending_only` filters. |
 | `GET` | `/api/config` | Whitelisted keys from `DEFAULT_CONFIG`. |
+| `PUT` | `/api/config` | Persist workbench user defaults (whitelisted keys only). Unknown keys return 422. |
 | `GET` | `/api/providers/health` | Per-provider API-key configuration status. |
 | `GET` | `/api/markets/{ticker}?range=6mo` | OHLC bars from Yahoo Finance. |
 
@@ -100,10 +103,30 @@ above; see `webapp/backend/schemas.py` for payload shapes.
 | `WORKBENCH_CORS_ORIGINS` | backend | `http://localhost:3000` | Comma-separated allowed origins for CORS. |
 | `BACKEND_INTERNAL_URL` | frontend (server) | `http://localhost:8000` | Absolute backend URL used by server components during SSR. Set this if the backend is not on localhost:8000. |
 | `TRADINGAGENTS_MEMORY_LOG_PATH` | engine + history route | `~/.tradingagents/memory/trading_memory.md` | Location of the decision log the History/Markets pages read. |
+| `TRADINGAGENTS_CACHE_DIR` | engine + workbench | `~/.tradingagents` | Base path; the workbench writes user defaults under `webapp/config.json` here. |
 
 All other engine knobs (`TRADINGAGENTS_*`, model selection, debate rounds, data
 vendors, etc.) are documented in the main [README](../README.md) and
 `tradingagents/default_config.py`.
+
+## Adding a new LLM provider
+
+The provider list (used by both the engine and the web backend) is a single
+YAML file: `tradingagents/llm_clients/providers.yaml`. Adding an
+OpenAI-compatible provider is six lines of YAML and zero code change:
+
+```yaml
+- id: my-provider
+  label: My Provider
+  env_key: MY_PROVIDER_API_KEY
+  openai_compatible: true
+  default_base_url: https://api.my-provider.com/v1
+```
+
+Restart the backend (and the frontend dev server if it's running) and the new
+provider appears in `/settings` and in the New Analysis wizard. Heterogeneous
+clients (Anthropic / Google / Azure) require `openai_compatible: false` and
+a `client:` field; see existing entries.
 
 ## Concurrency & runs
 
@@ -147,9 +170,6 @@ webapp/
 - **Reconnect replay**: the live stream works, but resuming a stream after a dropped
   connection does not yet replay missed events (the browser's native `EventSource`
   does not send `Last-Event-Id` for named events). Tracked as a follow-up.
-- **LLM/token metrics**: the metrics panel shows elapsed time and tool-call counts;
-  LLM-call and token counters are not yet wired and display `0`. Tracked as a
-  follow-up.
 - **Compare page**: multi-run comparison UI is a placeholder.
 - **Scope**: local single-user tool. No authentication, desktop-first layout.
 
