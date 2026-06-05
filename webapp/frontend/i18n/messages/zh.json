@@ -80,5 +80,19 @@
     "ctaTitle": "让团队开始工作",
     "ctaBody": "选定标的与日期、挑好模型，看智能体辩论 —— 从第一份分析师报告，到投资经理的最终决策。",
     "ctaDisclaimer": "研究框架 · 不构成任何投资建议"
+  },
+  "dashboard": {
+    "title": "工作台",
+    "subtitle": "一眼看完你所有的分析、决策与结果。",
+    "newAnalysis": "新建分析",
+    "stat": {
+      "runs": "运行数",
+      "alpha": "相对基准的平均超额收益",
+      "pending": "待复盘",
+      "lastRun": "上次运行"
+    },
+    "recentRuns": "最近运行",
+    "emptyTitle": "暂无运行。",
+    "emptyLink": "发起首次分析 →"
   }
 }

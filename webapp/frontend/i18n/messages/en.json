@@ -80,5 +80,19 @@
     "ctaTitle": "Put the desk to work",
     "ctaBody": "Pick a ticker and a date, choose your models, and watch the agents debate it out — from the first analyst report to the portfolio manager's final call.",
     "ctaDisclaimer": "Research framework · not financial advice"
+  },
+  "dashboard": {
+    "title": "Workbench",
+    "subtitle": "Your analyses, decisions, and outcomes at a glance.",
+    "newAnalysis": "New Analysis",
+    "stat": {
+      "runs": "Runs",
+      "alpha": "Avg α vs benchmark",
+      "pending": "Pending reflections",
+      "lastRun": "Last run"
+    },
+    "recentRuns": "Recent runs",
+    "emptyTitle": "No runs yet.",
+    "emptyLink": "Start your first analysis →"
   }
 }
