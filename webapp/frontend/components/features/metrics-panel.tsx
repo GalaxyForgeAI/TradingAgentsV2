@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { elapsed } from "@/lib/format";
 
 interface Props {
@@ -20,13 +22,14 @@ function Metric({ label, value }: { label: string; value: string | number }) {
 }
 
 export function MetricsPanel(p: Props) {
+  const t = useTranslations("runDetail.metrics");
   return (
     <div className="grid grid-cols-2 gap-2">
-      <Metric label="LLM calls" value={p.llmCalls} />
-      <Metric label="Tool calls" value={p.tools} />
-      <Metric label="Tokens ↑" value={p.tokensIn.toLocaleString()} />
-      <Metric label="Tokens ↓" value={p.tokensOut.toLocaleString()} />
-      <Metric label="Elapsed" value={elapsed(p.elapsedMs)} />
+      <Metric label={t("llm")} value={p.llmCalls} />
+      <Metric label={t("tools")} value={p.tools} />
+      <Metric label={t("tokensIn")} value={p.tokensIn.toLocaleString()} />
+      <Metric label={t("tokensOut")} value={p.tokensOut.toLocaleString()} />
+      <Metric label={t("elapsed")} value={elapsed(p.elapsedMs)} />
     </div>
   );
 }

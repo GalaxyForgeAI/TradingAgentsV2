@@ -1,11 +1,14 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import type { AgentName } from "@/lib/types";
 
 interface Item { agent: AgentName; tool: string; preview?: string | null }
 
 export function ToolLog({ items }: { items: Item[] }) {
-  if (items.length === 0) return <div className="text-sm text-zinc-500">No tool calls yet</div>;
+  const t = useTranslations("runDetail.toolLog");
+  if (items.length === 0) return <div className="text-sm text-zinc-500">{t("empty")}</div>;
   return (
     <ul className="space-y-1 text-sm">
       {items.slice(-30).map((it, i) => (

@@ -2,22 +2,23 @@
 
 import { CheckCircle2, Circle, Loader2, XCircle } from "lucide-react";
 import { clsx } from "clsx";
+import { useTranslations } from "next-intl";
 
 import type { AgentName, AgentStatus } from "@/lib/types";
 
-const AGENT_ORDER: { id: AgentName; label: string; group: string }[] = [
-  { id: "market_analyst", label: "Market Analyst", group: "Analysts" },
-  { id: "social_analyst", label: "Sentiment Analyst", group: "Analysts" },
-  { id: "news_analyst", label: "News Analyst", group: "Analysts" },
-  { id: "fundamentals_analyst", label: "Fundamentals Analyst", group: "Analysts" },
-  { id: "bull_researcher", label: "Bull Researcher", group: "Research" },
-  { id: "bear_researcher", label: "Bear Researcher", group: "Research" },
-  { id: "research_manager", label: "Research Manager", group: "Research" },
-  { id: "trader", label: "Trader", group: "Trade" },
-  { id: "aggressive_analyst", label: "Aggressive Risk", group: "Risk" },
-  { id: "conservative_analyst", label: "Conservative Risk", group: "Risk" },
-  { id: "neutral_analyst", label: "Neutral Risk", group: "Risk" },
-  { id: "portfolio_manager", label: "Portfolio Manager", group: "Decision" },
+const AGENT_ORDER: { id: AgentName; group: string }[] = [
+  { id: "market_analyst", group: "Analysts" },
+  { id: "social_analyst", group: "Analysts" },
+  { id: "news_analyst", group: "Analysts" },
+  { id: "fundamentals_analyst", group: "Analysts" },
+  { id: "bull_researcher", group: "Research" },
+  { id: "bear_researcher", group: "Research" },
+  { id: "research_manager", group: "Research" },
+  { id: "trader", group: "Trade" },
+  { id: "aggressive_analyst", group: "Risk" },
+  { id: "conservative_analyst", group: "Risk" },
+  { id: "neutral_analyst", group: "Risk" },
+  { id: "portfolio_manager", group: "Decision" },
 ];
 
 interface Props {
@@ -34,6 +35,7 @@ function StatusIcon({ status }: { status: AgentStatus }) {
 }
 
 export function PipelineStepper({ agents, selected, onSelect }: Props) {
+  const t = useTranslations("runDetail");
   let currentGroup = "";
   return (
     <ol className="space-y-1">
@@ -43,7 +45,7 @@ export function PipelineStepper({ agents, selected, onSelect }: Props) {
         return (
           <li key={a.id}>
             {showGroup && (
-              <div className="mt-3 text-xs uppercase tracking-wide text-zinc-500">{a.group}</div>
+              <div className="mt-3 text-xs uppercase tracking-wide text-zinc-500">{t(`group.${a.group}`)}</div>
             )}
             <button
               type="button"
@@ -54,7 +56,7 @@ export function PipelineStepper({ agents, selected, onSelect }: Props) {
               )}
             >
               <StatusIcon status={agents[a.id].status} />
-              <span>{a.label}</span>
+              <span>{t(`agent.${a.id}`)}</span>
             </button>
           </li>
         );

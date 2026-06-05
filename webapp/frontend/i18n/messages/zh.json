@@ -154,5 +154,56 @@
     },
     "saveDefaults": "保存默认值",
     "errorPrefix": "错误："
+  },
+  "runDetail": {
+    "status": "状态：{state}",
+    "waiting": "等待输出…",
+    "errorTitleFallback": "未知错误",
+    "agent": {
+      "market_analyst": "市场分析师",
+      "social_analyst": "情绪分析师",
+      "news_analyst": "新闻分析师",
+      "fundamentals_analyst": "基本面分析师",
+      "bull_researcher": "多头研究员",
+      "bear_researcher": "空头研究员",
+      "research_manager": "研究主管",
+      "trader": "交易员",
+      "aggressive_analyst": "激进风险",
+      "conservative_analyst": "保守风险",
+      "neutral_analyst": "中性风险",
+      "portfolio_manager": "投资经理"
+    },
+    "group": {
+      "Analysts": "分析师",
+      "Research": "研究",
+      "Trade": "交易",
+      "Risk": "风险",
+      "Decision": "决策"
+    },
+    "debate": {
+      "round": "第 {n} 轮",
+      "side": {
+        "bull": "多头",
+        "bear": "空头",
+        "aggressive": "激进",
+        "conservative": "保守",
+        "neutral": "中性"
+      }
+    },
+    "decision": {
+      "finalLabel": "最终决策",
+      "tookSeconds": "本次运行用时 {s} 秒"
+    },
+    "metrics": {
+      "llm": "LLM 调用",
+      "tools": "工具调用",
+      "tokensIn": "Token 入",
+      "tokensOut": "Token 出",
+      "elapsed": "用时"
+    },
+    "toolLog": {
+      "empty": "尚无工具调用",
+      "heading": "工具调用"
+    }
   }
 }

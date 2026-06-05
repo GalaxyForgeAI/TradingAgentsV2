@@ -154,5 +154,56 @@
     },
     "saveDefaults": "Save defaults",
     "errorPrefix": "Error: "
+  },
+  "runDetail": {
+    "status": "Status: {state}",
+    "waiting": "Waiting for output…",
+    "errorTitleFallback": "Unknown error",
+    "agent": {
+      "market_analyst": "Market Analyst",
+      "social_analyst": "Sentiment Analyst",
+      "news_analyst": "News Analyst",
+      "fundamentals_analyst": "Fundamentals Analyst",
+      "bull_researcher": "Bull Researcher",
+      "bear_researcher": "Bear Researcher",
+      "research_manager": "Research Manager",
+      "trader": "Trader",
+      "aggressive_analyst": "Aggressive Risk",
+      "conservative_analyst": "Conservative Risk",
+      "neutral_analyst": "Neutral Risk",
+      "portfolio_manager": "Portfolio Manager"
+    },
+    "group": {
+      "Analysts": "Analysts",
+      "Research": "Research",
+      "Trade": "Trade",
+      "Risk": "Risk",
+      "Decision": "Decision"
+    },
+    "debate": {
+      "round": "Round {n}",
+      "side": {
+        "bull": "Bull",
+        "bear": "Bear",
+        "aggressive": "Aggressive",
+        "conservative": "Conservative",
+        "neutral": "Neutral"
+      }
+    },
+    "decision": {
+      "finalLabel": "Final Decision",
+      "tookSeconds": "Run took {s}s"
+    },
+    "metrics": {
+      "llm": "LLM calls",
+      "tools": "Tool calls",
+      "tokensIn": "Tokens ↑",
+      "tokensOut": "Tokens ↓",
+      "elapsed": "Elapsed"
+    },
+    "toolLog": {
+      "empty": "No tool calls yet",
+      "heading": "Tool calls"
+    }
   }
 }

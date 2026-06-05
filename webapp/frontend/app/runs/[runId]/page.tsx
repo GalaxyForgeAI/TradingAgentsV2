@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import { DebateBubbles } from "@/components/features/debate-bubbles";
 import { DecisionCard } from "@/components/features/decision-card";
@@ -23,6 +24,7 @@ const REPORT_FIELD: Partial<Record<AgentName, string>> = {
 };
 
 export default function RunDetail({ params }: { params: Promise<{ runId: string }> }) {
+  const t = useTranslations("runDetail");
   const { runId } = use(params);
   const { events } = useEventStream(`/api/runs/${runId}/stream`);
   const [state, setState] = useState<RunState>(initialRunState());
@@ -44,8 +46,8 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
       return (
         <DebateBubbles
           sides={[
-            { side: "bull", label: "Bull", messages: state.debates.investment.bull, tone: "bull" },
-            { side: "bear", label: "Bear", messages: state.debates.investment.bear, tone: "bear" },
+            { side: "bull", messages: state.debates.investment.bull, tone: "bull" },
+            { side: "bear", messages: state.debates.investment.bear, tone: "bear" },
           ]}
         />
       );
@@ -54,9 +56,9 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
       return (
         <DebateBubbles
           sides={[
-            { side: "aggressive", label: "Aggressive", messages: state.debates.risk.aggressive, tone: "bull" },
-            { side: "conservative", label: "Conservative", messages: state.debates.risk.conservative, tone: "bear" },
-            { side: "neutral", label: "Neutral", messages: state.debates.risk.neutral, tone: "neutral" },
+            { side: "aggressive", messages: state.debates.risk.aggressive, tone: "bull" },
+            { side: "conservative", messages: state.debates.risk.conservative, tone: "bear" },
+            { side: "neutral", messages: state.debates.risk.neutral, tone: "neutral" },
           ]}
         />
       );
@@ -72,15 +74,15 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
     }
     const field = REPORT_FIELD[selected];
     const md = field ? state.reports[field] : undefined;
-    return md ? <Markdown>{md}</Markdown> : <p className="text-sm text-zinc-500">Waiting for output…</p>;
-  }, [selected, state]);
+    return md ? <Markdown>{md}</Markdown> : <p className="text-sm text-zinc-500">{t("waiting")}</p>;
+  }, [selected, state, t]);
 
   return (
     <main className="grid h-screen grid-cols-[260px_1fr_320px] gap-4 p-4">
       <aside className="overflow-y-auto rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mb-3">
           <div className="text-xs uppercase text-zinc-500">{state.ticker || "—"} · {state.tradeDate || "—"}</div>
-          <div className="text-sm font-medium">Status: {state.status}</div>
+          <div className="text-sm font-medium">{t("status", { state: state.status })}</div>
         </div>
         <PipelineStepper agents={state.agents} selected={selected} onSelect={setSelected} />
       </aside>
@@ -98,12 +100,12 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
           elapsedMs={state.metrics.elapsedMs}
         />
         <div>
-          <h3 className="mb-2 text-xs uppercase text-zinc-500">Tool calls</h3>
+          <h3 className="mb-2 text-xs uppercase text-zinc-500">{t("toolLog.heading")}</h3>
           <ToolLog items={state.toolCalls} />
         </div>
         {state.status === "error" && (
           <div className="rounded border border-red-300 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
-            {state.errorMessage ?? "Unknown error"}
+            {state.errorMessage ?? t("errorTitleFallback")}
           </div>
         )}
       </aside>
