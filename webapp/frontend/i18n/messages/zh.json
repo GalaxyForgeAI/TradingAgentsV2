@@ -97,7 +97,10 @@
   },
   "wizard": {
     "title": "新建分析",
-    "step1": { "ticker": "标的", "tradeDate": "分析日期" },
+    "step1": {
+      "ticker": "标的",
+      "tradeDate": "分析日期"
+    },
     "step3": {
       "provider": "LLM 提供商",
       "deepModel": "深思模型（可选）",
@@ -150,10 +153,14 @@
       "quickModel": "快思模型",
       "baseUrl": "API 基址",
       "temperature": "采样温度",
-      "outputLanguage": "报告语言（智能体输出）"
+      "outputLanguage": "报告语言（智能体输出）",
+      "apiKey": "API 密钥",
+      "customLanguage": "自定义语言名称"
     },
     "saveDefaults": "保存默认值",
-    "errorPrefix": "错误："
+    "errorPrefix": "错误：",
+    "apiKeyStoredHint": "已为该提供商存储密钥，留空则保持不变。",
+    "languageCustom": "自定义…"
   },
   "runDetail": {
     "status": "状态：{state}",

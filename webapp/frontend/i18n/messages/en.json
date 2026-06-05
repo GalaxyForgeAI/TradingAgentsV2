@@ -97,7 +97,10 @@
   },
   "wizard": {
     "title": "New Analysis",
-    "step1": { "ticker": "Ticker", "tradeDate": "Trade date" },
+    "step1": {
+      "ticker": "Ticker",
+      "tradeDate": "Trade date"
+    },
     "step3": {
       "provider": "LLM provider",
       "deepModel": "Deep think model (optional)",
@@ -150,10 +153,14 @@
       "quickModel": "Quick think model",
       "baseUrl": "API base URL",
       "temperature": "Temperature",
-      "outputLanguage": "Output language (agent reports)"
+      "outputLanguage": "Output language (agent reports)",
+      "apiKey": "API key",
+      "customLanguage": "Custom language name"
     },
     "saveDefaults": "Save defaults",
-    "errorPrefix": "Error: "
+    "errorPrefix": "Error: ",
+    "apiKeyStoredHint": "A key is stored for this provider. Leave blank to keep it.",
+    "languageCustom": "Custom…"
   },
   "runDetail": {
     "status": "Status: {state}",

@@ -21,6 +21,7 @@ SAFE_KEYS = frozenset({
     "backend_url",
     "temperature",
     "output_language",
+    "api_keys",
 })
 
 
@@ -53,11 +54,26 @@ def save(updates: dict[str, Any]) -> dict[str, Any]:
     bad = set(updates.keys()) - SAFE_KEYS
     if bad:
         raise InvalidConfigKey(f"Unknown config keys: {sorted(bad)}")
-    merged = {**load(), **updates}
+    current = load()
+    merged = {**current, **updates}
+
+    # `api_keys` is a per-provider secret map; merge it nested so saving one
+    # provider's key never wipes the others, and drop empty values so a
+    # blank submission clears that provider rather than storing "".
+    if "api_keys" in updates:
+        api = {**(current.get("api_keys") or {}), **(updates["api_keys"] or {})}
+        api = {k: v for k, v in api.items() if v}
+        if api:
+            merged["api_keys"] = api
+        else:
+            merged.pop("api_keys", None)
+
     path = _config_path()
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix=".config-", suffix=".tmp", dir=path.parent)
     try:
+        # The file may hold API keys — keep it owner-only.
+        os.chmod(tmp, 0o600)
         with os.fdopen(fd, "w") as f:
             json.dump(merged, f, indent=2, sort_keys=True)
         os.replace(tmp, path)
@@ -68,3 +84,9 @@ def save(updates: dict[str, Any]) -> dict[str, Any]:
             pass
         raise
     return merged
+
+
+def get_api_keys() -> dict[str, str]:
+    """Return the stored per-provider API keys ({provider_id: key})."""
+    keys = load().get("api_keys")
+    return dict(keys) if isinstance(keys, dict) else {}

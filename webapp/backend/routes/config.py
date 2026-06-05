@@ -39,9 +39,22 @@ def _safe_defaults() -> dict[str, Any]:
     return {k: v for k, v in DEFAULT_CONFIG.items() if k in _SAFE_KEYS}
 
 
+def _public(merged: dict[str, Any]) -> dict[str, Any]:
+    """Build the client-facing config, never exposing raw secrets.
+
+    `api_keys` is replaced by `api_keys_set` — a list of provider ids that
+    have a key stored — so the UI can show "configured" without the value
+    ever reaching the browser.
+    """
+    out = {**_safe_defaults(), **merged}
+    keys = out.pop("api_keys", None)
+    out["api_keys_set"] = sorted(keys.keys()) if isinstance(keys, dict) else []
+    return out
+
+
 @router.get("")
 def get_config() -> dict[str, Any]:
-    return {**_safe_defaults(), **workbench_config.load()}
+    return _public(workbench_config.load())
 
 
 @router.put("")
@@ -50,4 +63,4 @@ def put_config(updates: dict[str, Any]) -> dict[str, Any]:
         merged = workbench_config.save(updates)
     except workbench_config.InvalidConfigKey as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    return {**_safe_defaults(), **merged}
+    return _public(merged)

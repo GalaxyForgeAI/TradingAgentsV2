@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { api } from "@/lib/api";
 import type { ProviderHealth } from "@/lib/types";
@@ -17,10 +17,19 @@ const SAFE_KEYS = [
 
 type SafeKey = (typeof SAFE_KEYS)[number];
 
+const LANGUAGES = [
+  { value: "English", label: "English" },
+  { value: "Chinese", label: "Chinese (中文)" },
+  { value: "Japanese", label: "Japanese (日本語)" },
+];
+
+const CUSTOM = "__custom__";
+
 export default function Settings() {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const [providers, setProviders] = useState<ProviderHealth[]>([]);
+  const [apiKeysSet, setApiKeysSet] = useState<string[]>([]);
   const [form, setForm] = useState<Record<SafeKey, string>>({
     llm_provider: "openai",
     deep_think_llm: "",
@@ -29,28 +38,47 @@ export default function Settings() {
     temperature: "",
     output_language: "English",
   });
+  const [customLang, setCustomLang] = useState("");
+  const [apiKey, setApiKey] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [err, setErr] = useState<string | null>(null);
+
+  async function refresh() {
+    const [{ providers }, cfg] = await Promise.all([api.providers(), api.config()]);
+    setProviders(providers);
+    setApiKeysSet((cfg.api_keys_set as string[]) ?? []);
+    const lang = (cfg.output_language as string) ?? "English";
+    const known = LANGUAGES.some((l) => l.value === lang);
+    setForm({
+      llm_provider: (cfg.llm_provider as string) ?? "openai",
+      deep_think_llm: (cfg.deep_think_llm as string) ?? "",
+      quick_think_llm: (cfg.quick_think_llm as string) ?? "",
+      backend_url: (cfg.backend_url as string) ?? "",
+      temperature: cfg.temperature == null ? "" : String(cfg.temperature),
+      output_language: known ? lang : CUSTOM,
+    });
+    if (!known) setCustomLang(lang);
+  }
 
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [{ providers }, cfg] = await Promise.all([api.providers(), api.config()]);
+      try {
+        await refresh();
+      } catch {
+        /* leave defaults */
+      }
       if (!alive) return;
-      setProviders(providers);
-      setForm({
-        llm_provider: (cfg.llm_provider as string) ?? "openai",
-        deep_think_llm: (cfg.deep_think_llm as string) ?? "",
-        quick_think_llm: (cfg.quick_think_llm as string) ?? "",
-        backend_url: (cfg.backend_url as string) ?? "",
-        temperature: cfg.temperature == null ? "" : String(cfg.temperature),
-        output_language: (cfg.output_language as string) ?? "English",
-      });
     })();
     return () => {
       alive = false;
     };
   }, []);
+
+  const selectedHasKey = useMemo(() => {
+    const p = providers.find((x) => x.id === form.llm_provider);
+    return apiKeysSet.includes(form.llm_provider) || Boolean(p?.configured);
+  }, [providers, apiKeysSet, form.llm_provider]);
 
   async function save() {
     setStatus("saving");
@@ -61,10 +89,18 @@ export default function Settings() {
       quick_think_llm: form.quick_think_llm || null,
       backend_url: form.backend_url ? form.backend_url.replace(/\/+$/, "") : null,
       temperature: form.temperature === "" ? null : Number(form.temperature),
-      output_language: form.output_language,
+      output_language:
+        form.output_language === CUSTOM ? customLang || "English" : form.output_language,
     };
+    // Only send a key when the user typed one; the value never round-trips
+    // back from the server, so a blank field means "keep the existing key".
+    if (apiKey.trim()) {
+      updates.api_keys = { [form.llm_provider]: apiKey.trim() };
+    }
     try {
       await api.putConfig(updates);
+      setApiKey("");
+      await refresh();
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 1500);
     } catch (e) {
@@ -96,9 +132,8 @@ export default function Settings() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-medium">{t("defaults")}</h2>
-        <p className="text-xs text-zinc-500">
-          {t("defaultsHelp")}
-        </p>
+        <p className="text-xs text-zinc-500">{t("defaultsHelp")}</p>
+
         <FormRow label={t("field.provider")}>
           <select
             value={form.llm_provider}
@@ -112,6 +147,21 @@ export default function Settings() {
             ))}
           </select>
         </FormRow>
+
+        <FormRow label={t("field.apiKey")}>
+          <input
+            type="password"
+            autoComplete="off"
+            value={apiKey}
+            placeholder={selectedHasKey ? "•••••••• " + tc("configured") : "sk-…"}
+            onChange={(e) => setApiKey(e.target.value)}
+            className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
+          />
+          {selectedHasKey && (
+            <span className="mt-1 block text-xs text-zinc-500">{t("apiKeyStoredHint")}</span>
+          )}
+        </FormRow>
+
         <div className="grid grid-cols-2 gap-3">
           <FormRow label={t("field.deepModel")}>
             <input
@@ -128,6 +178,7 @@ export default function Settings() {
             />
           </FormRow>
         </div>
+
         <FormRow label={t("field.baseUrl")}>
           <input
             type="url"
@@ -137,6 +188,7 @@ export default function Settings() {
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
           />
         </FormRow>
+
         <FormRow label={t("field.temperature")}>
           <input
             type="number"
@@ -148,13 +200,32 @@ export default function Settings() {
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
           />
         </FormRow>
+
         <FormRow label={t("field.outputLanguage")}>
-          <input
+          <select
             value={form.output_language}
             onChange={(e) => setForm({ ...form, output_language: e.target.value })}
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
-          />
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+            <option value={CUSTOM}>{t("languageCustom")}</option>
+          </select>
         </FormRow>
+        {form.output_language === CUSTOM && (
+          <FormRow label={t("field.customLanguage")}>
+            <input
+              value={customLang}
+              onChange={(e) => setCustomLang(e.target.value)}
+              placeholder="e.g. Korean"
+              className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </FormRow>
+        )}
+
         <div className="flex items-center gap-3 pt-2">
           <button
             type="button"

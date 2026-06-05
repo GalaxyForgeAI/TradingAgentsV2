@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 from sse_starlette.sse import EventSourceResponse
 
+from webapp.backend import workbench_config
 from webapp.backend.graph_runner import GraphRunner
 from webapp.backend.run_registry import RunRegistry
 from webapp.backend.schemas import RunRequest
@@ -19,6 +21,16 @@ def _graph_factory(req: RunRequest, callbacks: list[Any] | None = None) -> Any:
     """Default factory; overridden in tests."""
     from tradingagents.default_config import DEFAULT_CONFIG
     from tradingagents.graph.trading_graph import TradingAgentsGraph
+    from tradingagents.llm_clients.factory import get_providers
+
+    # If the user saved an API key for this provider in the workbench Settings
+    # (rather than via an env var), inject it into the process environment so
+    # the engine's per-provider client picks it up.
+    stored_keys = workbench_config.get_api_keys()
+    if stored_keys:
+        meta = next((m for m in get_providers() if m.id == req.llm_provider), None)
+        if meta and meta.env_key and stored_keys.get(req.llm_provider):
+            os.environ[meta.env_key] = stored_keys[req.llm_provider]
 
     config = DEFAULT_CONFIG.copy()
     if req.deep_think_llm:
