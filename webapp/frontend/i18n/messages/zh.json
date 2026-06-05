@@ -138,5 +138,21 @@
     "instructionsPart1": "在「全部运行」中勾选最多 4 个运行，将其 id 以 ",
     "instructionsCode": "?ids=a,b,c",
     "instructionsPart2": " 方式带入即可对比（选择 UI 将在后续版本提供）。"
+  },
+  "settings": {
+    "title": "设置",
+    "providers": "提供商",
+    "defaults": "工作台默认值",
+    "defaultsHelp": "这些值用于预填「新建分析」向导，每次运行仍可在向导内单独覆盖。",
+    "field": {
+      "provider": "LLM 提供商",
+      "deepModel": "深思模型",
+      "quickModel": "快思模型",
+      "baseUrl": "API 基址",
+      "temperature": "采样温度",
+      "outputLanguage": "报告语言（智能体输出）"
+    },
+    "saveDefaults": "保存默认值",
+    "errorPrefix": "错误："
   }
 }

@@ -138,5 +138,21 @@
     "instructionsPart1": "Select up to 4 runs from the history table; pass their ids as ",
     "instructionsCode": "?ids=a,b,c",
     "instructionsPart2": " to compare. (Selection UI lands in a follow-up.)"
+  },
+  "settings": {
+    "title": "Settings",
+    "providers": "Providers",
+    "defaults": "Workbench defaults",
+    "defaultsHelp": "These prefill the New Analysis wizard. The wizard can still override them per run.",
+    "field": {
+      "provider": "LLM provider",
+      "deepModel": "Deep think model",
+      "quickModel": "Quick think model",
+      "baseUrl": "API base URL",
+      "temperature": "Temperature",
+      "outputLanguage": "Output language (agent reports)"
+    },
+    "saveDefaults": "Save defaults",
+    "errorPrefix": "Error: "
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 import { api } from "@/lib/api";
@@ -17,6 +18,8 @@ const SAFE_KEYS = [
 type SafeKey = (typeof SAFE_KEYS)[number];
 
 export default function Settings() {
+  const t = useTranslations("settings");
+  const tc = useTranslations("common");
   const [providers, setProviders] = useState<ProviderHealth[]>([]);
   const [form, setForm] = useState<Record<SafeKey, string>>({
     llm_provider: "openai",
@@ -72,10 +75,10 @@ export default function Settings() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-8 p-8">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+      <h1 className="text-2xl font-semibold">{t("title")}</h1>
 
       <section>
-        <h2 className="mb-3 text-lg font-medium">Providers</h2>
+        <h2 className="mb-3 text-lg font-medium">{t("providers")}</h2>
         <ul className="space-y-1 text-sm">
           {providers.map((p) => (
             <li
@@ -84,7 +87,7 @@ export default function Settings() {
             >
               <span>{p.label}</span>
               <span className={p.configured ? "text-emerald-500" : "text-zinc-500"}>
-                {p.configured ? "Configured" : "Missing key"}
+                {p.configured ? tc("configured") : tc("missingKey")}
               </span>
             </li>
           ))}
@@ -92,11 +95,11 @@ export default function Settings() {
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-medium">Workbench defaults</h2>
+        <h2 className="text-lg font-medium">{t("defaults")}</h2>
         <p className="text-xs text-zinc-500">
-          These prefill the New Analysis wizard. The wizard can still override them per run.
+          {t("defaultsHelp")}
         </p>
-        <FormRow label="LLM provider">
+        <FormRow label={t("field.provider")}>
           <select
             value={form.llm_provider}
             onChange={(e) => setForm({ ...form, llm_provider: e.target.value })}
@@ -110,14 +113,14 @@ export default function Settings() {
           </select>
         </FormRow>
         <div className="grid grid-cols-2 gap-3">
-          <FormRow label="Deep think model">
+          <FormRow label={t("field.deepModel")}>
             <input
               value={form.deep_think_llm}
               onChange={(e) => setForm({ ...form, deep_think_llm: e.target.value })}
               className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
             />
           </FormRow>
-          <FormRow label="Quick think model">
+          <FormRow label={t("field.quickModel")}>
             <input
               value={form.quick_think_llm}
               onChange={(e) => setForm({ ...form, quick_think_llm: e.target.value })}
@@ -125,7 +128,7 @@ export default function Settings() {
             />
           </FormRow>
         </div>
-        <FormRow label="API base URL">
+        <FormRow label={t("field.baseUrl")}>
           <input
             type="url"
             value={form.backend_url}
@@ -134,7 +137,7 @@ export default function Settings() {
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
           />
         </FormRow>
-        <FormRow label="Temperature">
+        <FormRow label={t("field.temperature")}>
           <input
             type="number"
             step={0.05}
@@ -145,7 +148,7 @@ export default function Settings() {
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
           />
         </FormRow>
-        <FormRow label="Output language (agent reports)">
+        <FormRow label={t("field.outputLanguage")}>
           <input
             value={form.output_language}
             onChange={(e) => setForm({ ...form, output_language: e.target.value })}
@@ -159,10 +162,10 @@ export default function Settings() {
             disabled={status === "saving"}
             className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
-            {status === "saving" ? "Saving…" : "Save defaults"}
+            {status === "saving" ? tc("saving") : t("saveDefaults")}
           </button>
-          {status === "saved" && <span className="text-sm text-emerald-500">Saved ✓</span>}
-          {status === "error" && <span className="text-sm text-red-500">Error: {err}</span>}
+          {status === "saved" && <span className="text-sm text-emerald-500">{`${tc("saved")} ✓`}</span>}
+          {status === "error" && <span className="text-sm text-red-500">{`${t("errorPrefix")}${err}`}</span>}
         </div>
       </section>
     </main>
