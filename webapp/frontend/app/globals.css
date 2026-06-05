@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Drive `dark:` variants from the `.dark` class on <html> rather than the OS
+   prefers-color-scheme (Tailwind v4 defaults to the media query). The whole
+   workbench is dark-only, so every `dark:` utility must follow the class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   color-scheme: dark;
 }

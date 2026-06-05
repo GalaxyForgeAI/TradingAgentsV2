@@ -33,6 +33,7 @@ export default function NewRun() {
     llm_provider: "openai",
     max_debate_rounds: 1,
     max_risk_discuss_rounds: 1,
+    checkpoint_enabled: false,
     output_language: "English",
   });
   const [customLang, setCustomLang] = useState("");
