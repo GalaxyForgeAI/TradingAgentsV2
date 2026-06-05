@@ -94,5 +94,27 @@
     "recentRuns": "Recent runs",
     "emptyTitle": "No runs yet.",
     "emptyLink": "Start your first analysis →"
+  },
+  "wizard": {
+    "title": "New Analysis",
+    "step1": { "ticker": "Ticker", "tradeDate": "Trade date" },
+    "step3": {
+      "provider": "LLM provider",
+      "deepModel": "Deep think model (optional)",
+      "quickModel": "Quick think model (optional)",
+      "baseUrl": "API base URL (optional)"
+    },
+    "step4": {
+      "debateRounds": "Debate rounds: {n}",
+      "riskRounds": "Risk debate rounds: {n}",
+      "outputLanguage": "Output language (what the agents write in)",
+      "customLanguage": "Custom language name",
+      "customPlaceholder": "e.g. Korean",
+      "checkpoint": "Enable checkpoint resume",
+      "languageCustom": "Custom…"
+    },
+    "submit": "Start analysis",
+    "submitting": "Starting…",
+    "providerMissing": " (missing key)"
   }
 }

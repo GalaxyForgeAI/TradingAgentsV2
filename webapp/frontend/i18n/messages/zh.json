@@ -94,5 +94,27 @@
     "recentRuns": "最近运行",
     "emptyTitle": "暂无运行。",
     "emptyLink": "发起首次分析 →"
+  },
+  "wizard": {
+    "title": "新建分析",
+    "step1": { "ticker": "标的", "tradeDate": "分析日期" },
+    "step3": {
+      "provider": "LLM 提供商",
+      "deepModel": "深思模型（可选）",
+      "quickModel": "快思模型（可选）",
+      "baseUrl": "API 基址（可选）"
+    },
+    "step4": {
+      "debateRounds": "辩论轮数：{n}",
+      "riskRounds": "风险辩论轮数：{n}",
+      "outputLanguage": "报告语言（智能体输出语言）",
+      "customLanguage": "自定义语言名称",
+      "customPlaceholder": "例如 Korean",
+      "checkpoint": "启用检查点恢复",
+      "languageCustom": "自定义…"
+    },
+    "submit": "发起分析",
+    "submitting": "启动中…",
+    "providerMissing": "（缺少密钥）"
   }
 }

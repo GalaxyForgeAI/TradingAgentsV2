@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -20,6 +21,8 @@ const LANGUAGES = [
 ];
 
 export default function NewRun() {
+  const t = useTranslations("wizard");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [providers, setProviders] = useState<ProviderHealth[]>([]);
@@ -86,7 +89,7 @@ export default function NewRun() {
 
   return (
     <main className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-2xl font-semibold">New Analysis</h1>
+      <h1 className="mb-6 text-2xl font-semibold">{t("title")}</h1>
       <div className="mb-6 flex gap-2">
         {[1, 2, 3, 4].map((n) => (
           <div
@@ -98,14 +101,14 @@ export default function NewRun() {
 
       {step === 1 && (
         <div className="space-y-4">
-          <Field label="Ticker">
+          <Field label={t("step1.ticker")}>
             <input
               value={form.ticker}
               onChange={(e) => setForm({ ...form, ticker: e.target.value })}
               className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
             />
           </Field>
-          <Field label="Trade date">
+          <Field label={t("step1.tradeDate")}>
             <input
               type="date"
               value={form.trade_date}
@@ -145,7 +148,7 @@ export default function NewRun() {
 
       {step === 3 && (
         <div className="space-y-4">
-          <Field label="LLM provider">
+          <Field label={t("step3.provider")}>
             <select
               value={form.llm_provider}
               onChange={(e) => setForm({ ...form, llm_provider: e.target.value })}
@@ -154,13 +157,13 @@ export default function NewRun() {
               {providers.map((p) => (
                 <option key={p.id} value={p.id} disabled={!p.configured}>
                   {p.label}
-                  {!p.configured ? " (missing key)" : ""}
+                  {!p.configured ? t("providerMissing") : ""}
                 </option>
               ))}
             </select>
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Deep think model (optional)">
+            <Field label={t("step3.deepModel")}>
               <input
                 value={form.deep_think_llm ?? ""}
                 placeholder={selectedProvider?.default_deep_model ?? ""}
@@ -170,7 +173,7 @@ export default function NewRun() {
                 className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
               />
             </Field>
-            <Field label="Quick think model (optional)">
+            <Field label={t("step3.quickModel")}>
               <input
                 value={form.quick_think_llm ?? ""}
                 placeholder={selectedProvider?.default_quick_model ?? ""}
@@ -181,7 +184,7 @@ export default function NewRun() {
               />
             </Field>
           </div>
-          <Field label="API base URL (optional)">
+          <Field label={t("step3.baseUrl")}>
             <input
               type="url"
               value={form.backend_url ?? ""}
@@ -197,7 +200,7 @@ export default function NewRun() {
 
       {step === 4 && (
         <div className="space-y-4">
-          <Field label={`Debate rounds: ${form.max_debate_rounds}`}>
+          <Field label={t("step4.debateRounds", { n: form.max_debate_rounds })}>
             <input
               type="range"
               min={1}
@@ -209,7 +212,7 @@ export default function NewRun() {
               className="w-full"
             />
           </Field>
-          <Field label={`Risk debate rounds: ${form.max_risk_discuss_rounds}`}>
+          <Field label={t("step4.riskRounds", { n: form.max_risk_discuss_rounds })}>
             <input
               type="range"
               min={1}
@@ -221,7 +224,7 @@ export default function NewRun() {
               className="w-full"
             />
           </Field>
-          <Field label="Output language (what the agents write in)">
+          <Field label={t("step4.outputLanguage")}>
             <select
               value={
                 LANGUAGES.find((l) => l.value === form.output_language)
@@ -244,15 +247,15 @@ export default function NewRun() {
                   {l.label}
                 </option>
               ))}
-              <option value="__custom__">Custom…</option>
+              <option value="__custom__">{t("step4.languageCustom")}</option>
             </select>
           </Field>
           {form.output_language === "__custom__" && (
-            <Field label="Custom language name">
+            <Field label={t("step4.customLanguage")}>
               <input
                 value={customLang}
                 onChange={(e) => setCustomLang(e.target.value)}
-                placeholder="e.g. Korean"
+                placeholder={t("step4.customPlaceholder")}
                 className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
               />
             </Field>
@@ -265,7 +268,7 @@ export default function NewRun() {
                 setForm({ ...form, checkpoint_enabled: e.target.checked })
               }
             />
-            Enable checkpoint resume
+            {t("step4.checkpoint")}
           </label>
         </div>
       )}
@@ -277,7 +280,7 @@ export default function NewRun() {
           disabled={step === 1}
           className="rounded border border-zinc-700 px-4 py-2 text-sm disabled:opacity-50"
         >
-          Back
+          {tc("back")}
         </button>
         {step < 4 ? (
           <button
@@ -285,7 +288,7 @@ export default function NewRun() {
             onClick={() => setStep((s) => s + 1)}
             className="rounded bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-900"
           >
-            Next
+            {tc("next")}
           </button>
         ) : (
           <button
@@ -294,7 +297,7 @@ export default function NewRun() {
             disabled={submitting}
             className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
           >
-            {submitting ? "Starting…" : "Start analysis"}
+            {submitting ? t("submitting") : t("submit")}
           </button>
         )}
       </div>
