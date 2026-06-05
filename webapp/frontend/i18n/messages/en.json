@@ -128,5 +128,15 @@
       "reflection": "Reflection"
     },
     "pending": "pending"
+  },
+  "markets": {
+    "decisionHistory": "Decision history",
+    "pendingReflection": "Pending reflection"
+  },
+  "compare": {
+    "title": "Compare runs",
+    "instructionsPart1": "Select up to 4 runs from the history table; pass their ids as ",
+    "instructionsCode": "?ids=a,b,c",
+    "instructionsPart2": " to compare. (Selection UI lands in a follow-up.)"
   }
 }

@@ -128,5 +128,15 @@
       "reflection": "复盘"
     },
     "pending": "待复盘"
+  },
+  "markets": {
+    "decisionHistory": "历次决策",
+    "pendingReflection": "尚未复盘"
+  },
+  "compare": {
+    "title": "对比运行",
+    "instructionsPart1": "在「全部运行」中勾选最多 4 个运行，将其 id 以 ",
+    "instructionsCode": "?ids=a,b,c",
+    "instructionsPart2": " 方式带入即可对比（选择 UI 将在后续版本提供）。"
   }
 }

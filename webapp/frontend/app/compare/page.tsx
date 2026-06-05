@@ -1,11 +1,16 @@
-export const dynamic = "force-dynamic";
+"use client";
+
+import { useTranslations } from "next-intl";
 
 export default function ComparePage() {
+  const t = useTranslations("compare");
   return (
     <main className="mx-auto max-w-6xl p-8">
-      <h1 className="mb-4 text-2xl font-semibold">Compare runs</h1>
+      <h1 className="mb-4 text-2xl font-semibold">{t("title")}</h1>
       <p className="text-sm text-zinc-500">
-        Select up to 4 runs from the history table; pass their ids as <code>?ids=a,b,c</code> to compare. (Selection UI lands in a follow-up.)
+        {t("instructionsPart1")}
+        <code>{t("instructionsCode")}</code>
+        {t("instructionsPart2")}
       </p>
     </main>
   );

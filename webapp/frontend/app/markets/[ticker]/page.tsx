@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import { PriceChart } from "@/components/features/price-chart";
 import { api } from "@/lib/api";
 import { pct, ratingColor } from "@/lib/format";
@@ -5,6 +7,7 @@ import { pct, ratingColor } from "@/lib/format";
 export const dynamic = "force-dynamic";
 
 export default async function MarketPage({ params }: { params: Promise<{ ticker: string }> }) {
+  const t = await getTranslations("markets");
   const { ticker } = await params;
   const [{ bars }, { entries }] = await Promise.all([
     api.market(ticker, "6mo"),
@@ -16,7 +19,7 @@ export default async function MarketPage({ params }: { params: Promise<{ ticker:
       <h1 className="text-2xl font-semibold">{ticker}</h1>
       <PriceChart bars={bars} />
       <section>
-        <h2 className="mb-3 text-lg font-medium">Decision history</h2>
+        <h2 className="mb-3 text-lg font-medium">{t("decisionHistory")}</h2>
         <ul className="space-y-2">
           {entries.map((e) => (
             <li key={e.date} className="rounded-md border border-zinc-200 bg-white p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -25,7 +28,7 @@ export default async function MarketPage({ params }: { params: Promise<{ ticker:
                 <div className={ratingColor(e.rating)}>{e.rating}</div>
                 <div className="text-xs text-zinc-500">α {pct(e.alpha)}</div>
               </div>
-              <p className="mt-2 text-zinc-600 dark:text-zinc-400">{e.reflection || "Pending reflection"}</p>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">{e.reflection || t("pendingReflection")}</p>
             </li>
           ))}
         </ul>
