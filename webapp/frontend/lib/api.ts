@@ -32,6 +32,11 @@ export const api = {
   putConfig: (updates: Record<string, unknown>) =>
     json<Record<string, unknown>>("/api/config", { method: "PUT", body: JSON.stringify(updates) }),
   providers: () => json<{ providers: ProviderHealth[] }>("/api/providers/health"),
+  testProvider: (body: { provider: string; model?: string; backend_url?: string }) =>
+    json<{ ok: boolean; message: string; latency_ms: number }>("/api/providers/test", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   market: (ticker: string, range = "6mo") =>
     json<{ ticker: string; bars: MarketBar[] }>(`/api/markets/${encodeURIComponent(ticker)}?range=${range}`),
 };

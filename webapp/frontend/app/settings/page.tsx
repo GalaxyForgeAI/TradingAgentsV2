@@ -42,6 +42,9 @@ export default function Settings() {
   const [apiKey, setApiKey] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [err, setErr] = useState<string | null>(null);
+  const [testStatus, setTestStatus] = useState<"idle" | "running" | "ok" | "fail">("idle");
+  const [testMsg, setTestMsg] = useState<string>("");
+  const [testLatency, setTestLatency] = useState<number | null>(null);
 
   async function refresh() {
     const [{ providers }, cfg] = await Promise.all([api.providers(), api.config()]);
@@ -109,6 +112,35 @@ export default function Settings() {
     }
   }
 
+  async function testConnection() {
+    // Test against what's currently in the form — persist a freshly-typed key
+    // first so the backend probe can read it; otherwise it falls back to the
+    // already-stored key for this provider.
+    setTestStatus("running");
+    setTestMsg("");
+    setTestLatency(null);
+    try {
+      if (apiKey.trim()) {
+        await api.putConfig({ api_keys: { [form.llm_provider]: apiKey.trim() } });
+        setApiKey("");
+        await refresh();
+      }
+      const r = await api.testProvider({
+        provider: form.llm_provider,
+        model: form.quick_think_llm || form.deep_think_llm || undefined,
+        backend_url: form.backend_url
+          ? form.backend_url.replace(/\/+$/, "")
+          : undefined,
+      });
+      setTestLatency(r.latency_ms);
+      setTestMsg(r.message);
+      setTestStatus(r.ok ? "ok" : "fail");
+    } catch (e) {
+      setTestStatus("fail");
+      setTestMsg((e as Error).message);
+    }
+  }
+
   return (
     <main className="mx-auto max-w-3xl space-y-8 p-8">
       <h1 className="text-2xl font-semibold">{t("title")}</h1>
@@ -137,7 +169,12 @@ export default function Settings() {
         <FormRow label={t("field.provider")}>
           <select
             value={form.llm_provider}
-            onChange={(e) => setForm({ ...form, llm_provider: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, llm_provider: e.target.value });
+              setTestStatus("idle");
+              setTestMsg("");
+              setTestLatency(null);
+            }}
             className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2"
           >
             {providers.map((p) => (
@@ -160,6 +197,28 @@ export default function Settings() {
           {selectedHasKey && (
             <span className="mt-1 block text-xs text-zinc-500">{t("apiKeyStoredHint")}</span>
           )}
+          <div className="mt-2 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={testConnection}
+              disabled={testStatus === "running" || (!selectedHasKey && !apiKey.trim())}
+              className="rounded border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition hover:border-zinc-500 hover:bg-zinc-900 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {testStatus === "running" ? t("testing") : t("testConnection")}
+            </button>
+            {testStatus === "ok" && (
+              <span className="text-xs text-emerald-500">
+                ✓ {t("testOk")}
+                {testLatency != null && ` · ${testLatency}ms`}
+                {testMsg && ` · ${testMsg}`}
+              </span>
+            )}
+            {testStatus === "fail" && (
+              <span className="text-xs text-red-500" title={testMsg}>
+                ✗ {t("testFail")} — {testMsg.length > 120 ? testMsg.slice(0, 120) + "…" : testMsg}
+              </span>
+            )}
+          </div>
         </FormRow>
 
         <div className="grid grid-cols-2 gap-3">

@@ -160,7 +160,11 @@
     "saveDefaults": "Save defaults",
     "errorPrefix": "Error: ",
     "apiKeyStoredHint": "A key is stored for this provider. Leave blank to keep it.",
-    "languageCustom": "Custom…"
+    "languageCustom": "Custom…",
+    "testConnection": "Test connection",
+    "testing": "Testing…",
+    "testOk": "Connected",
+    "testFail": "Failed"
   },
   "runDetail": {
     "status": "Status: {state}",
