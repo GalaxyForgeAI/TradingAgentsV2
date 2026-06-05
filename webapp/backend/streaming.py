@@ -99,8 +99,8 @@ class StreamAdapter:
         if isinstance(risk, dict):
             prev_risk = self._prev.get("risk_debate_state", {}) or {}
             for side, key in (
-                ("aggressive", "risky_history"),
-                ("conservative", "safe_history"),
+                ("aggressive", "aggressive_history"),
+                ("conservative", "conservative_history"),
                 ("neutral", "neutral_history"),
             ):
                 new_lines = _split_lines(prev_risk.get(key, ""), risk.get(key, ""))

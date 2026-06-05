@@ -1,11 +1,15 @@
 import pytest
 from httpx import ASGITransport, AsyncClient
 
+from webapp.backend import workbench_config
 from webapp.backend.main import create_app
 
 
 @pytest.mark.asyncio
-async def test_provider_health_reports_each_provider(monkeypatch):
+async def test_provider_health_reports_each_provider(tmp_path, monkeypatch):
+    # Isolate from any real ~/.tradingagents/webapp/config.json so stored keys
+    # don't bleed into the env-var assertions below.
+    monkeypatch.setattr(workbench_config, "_config_path", lambda: tmp_path / "none.json")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
 

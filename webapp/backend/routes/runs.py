@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import re
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
@@ -12,9 +14,66 @@ from webapp.backend.graph_runner import GraphRunner
 from webapp.backend.run_registry import RunRegistry
 from webapp.backend.schemas import RunRequest
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api/runs", tags=["runs"])
 
 _registry = RunRegistry()
+
+_CRYPTO_RE = re.compile(r"-USDT?$", re.IGNORECASE)
+
+
+class _StreamingGraph:
+    """Adapter exposing ``stream(ticker, trade_date)`` over a real
+    ``TradingAgentsGraph``.
+
+    The engine has no top-level ``stream`` method; the live run path is
+    ``graph.graph.stream(init_state, **args)`` with ``stream_mode="values"``
+    (see ``TradingAgentsGraph._run_graph``). This wrapper replicates that —
+    building the initial state with memory + instrument context, attaching the
+    callbacks, yielding each full-state chunk for SSE, and persisting the
+    decision to the memory log on completion so the run shows up in history.
+    """
+
+    def __init__(self, ta: Any, callbacks: list[Any]):
+        self._ta = ta
+        self._callbacks = callbacks or []
+
+    def stream(self, ticker: str, trade_date: str):
+        ta = self._ta
+        asset_type = "crypto" if _CRYPTO_RE.search(ticker) else "stock"
+        ta.ticker = ticker
+        past_context = ta.memory_log.get_past_context(ticker)
+        instrument_context = ta.resolve_instrument_context(ticker, asset_type)
+        init_state = ta.propagator.create_initial_state(
+            ticker,
+            trade_date,
+            asset_type=asset_type,
+            past_context=past_context,
+            instrument_context=instrument_context,
+        )
+        args = ta.propagator.get_graph_args(callbacks=self._callbacks)
+
+        final_state: dict[str, Any] = {}
+        for chunk in ta.graph.stream(init_state, **args):
+            if isinstance(chunk, dict):
+                final_state = chunk
+            yield chunk
+
+        # Best-effort: persist the decision so the run lands in the decision
+        # log / history. Never let bookkeeping failures break the stream.
+        try:
+            decision = final_state.get("final_trade_decision")
+            if decision:
+                ta.curr_state = final_state
+                ta._log_state(trade_date, final_state)
+                ta.memory_log.store_decision(
+                    ticker=ticker,
+                    trade_date=trade_date,
+                    final_trade_decision=decision,
+                )
+        except Exception:  # noqa: BLE001
+            logger.exception("post-run bookkeeping failed for %s %s", ticker, trade_date)
 
 
 def _graph_factory(req: RunRequest, callbacks: list[Any] | None = None) -> Any:
@@ -47,12 +106,13 @@ def _graph_factory(req: RunRequest, callbacks: list[Any] | None = None) -> Any:
     config["checkpoint_enabled"] = req.checkpoint_enabled
     config["output_language"] = req.output_language
 
-    return TradingAgentsGraph(
+    ta = TradingAgentsGraph(
         selected_analysts=req.analysts,
         debug=False,
         config=config,
         callbacks=callbacks or [],
     )
+    return _StreamingGraph(ta, callbacks or [])
 
 
 _runner = GraphRunner(

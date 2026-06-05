@@ -93,3 +93,27 @@ def test_metrics_tick_defaults_to_zero_without_stats():
     assert tick.payload["llm_calls"] == 0
     assert tick.payload["tokens_in"] == 0
     assert tick.payload["tokens_out"] == 0
+
+
+def test_risk_debate_uses_real_state_keys():
+    """Risk debate must read aggressive/conservative/neutral_history — the keys
+    the real AgentState uses (regression: previously read risky/safe_history)."""
+    a = StreamAdapter(run_id="r1")
+    a.translate({"company_of_interest": "AAPL", "trade_date": "2026-01-15"})
+    events = a.translate(
+        {
+            "risk_debate_state": {
+                "aggressive_history": "go big",
+                "conservative_history": "be careful",
+                "neutral_history": "balance it",
+                "count": 0,
+            }
+        }
+    )
+    msgs = [e for e in events if e.type == EventType.DEBATE_MESSAGE]
+    sides = {m.payload["side"]: m.payload["text"] for m in msgs}
+    assert sides == {
+        "aggressive": "go big",
+        "conservative": "be careful",
+        "neutral": "balance it",
+    }
