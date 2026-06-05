@@ -1,12 +1,13 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { api } from "@/lib/api";
-import { pct, ratingColor } from "@/lib/format";
+import { fmtDate, pct, ratingColor } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
 
 export default async function RunsPage() {
   const t = await getTranslations("history");
+  const locale = await getLocale();
   const { entries } = await api.history();
   return (
     <main className="mx-auto max-w-6xl p-8">
@@ -25,11 +26,11 @@ export default async function RunsPage() {
         <tbody>
           {entries.map((e) => (
             <tr key={`${e.date}-${e.ticker}`} className="border-b border-zinc-100 dark:border-zinc-900">
-              <td className="py-2">{e.date}</td>
+              <td className="py-2">{fmtDate(e.date, locale)}</td>
               <td className="font-medium">{e.ticker}</td>
               <td className={ratingColor(e.rating)}>{e.rating}</td>
-              <td>{pct(e.raw_return)}</td>
-              <td>{pct(e.alpha)}</td>
+              <td>{pct(e.raw_return, locale)}</td>
+              <td>{pct(e.alpha, locale)}</td>
               <td className="truncate text-zinc-500">{e.reflection?.slice(0, 120) || (e.pending ? t("pending") : "—")}</td>
             </tr>
           ))}

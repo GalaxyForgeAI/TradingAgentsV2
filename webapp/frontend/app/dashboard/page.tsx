@@ -1,5 +1,5 @@
 import { ArrowUpRight, Clock3, ListChecks, TrendingUp } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   const t = await getTranslations("dashboard");
+  const locale = await getLocale();
   const { entries } = await api.history();
   const pending = entries.filter((e) => e.pending).length;
   const alphas = entries.map((e) => e.alpha).filter((x): x is number => x != null);
@@ -34,7 +35,7 @@ export default async function Dashboard() {
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label={t("stat.runs")} value={entries.length.toString()} icon={<ListChecks className="h-4 w-4" />} />
-        <Stat label={t("stat.alpha")} value={pct(avgAlpha)} icon={<TrendingUp className="h-4 w-4" />} accent={avgAlpha != null && avgAlpha < 0 ? "down" : "up"} />
+        <Stat label={t("stat.alpha")} value={pct(avgAlpha, locale)} icon={<TrendingUp className="h-4 w-4" />} accent={avgAlpha != null && avgAlpha < 0 ? "down" : "up"} />
         <Stat label={t("stat.pending")} value={pending.toString()} icon={<Clock3 className="h-4 w-4" />} />
         <Stat label={t("stat.lastRun")} value={entries[0]?.date ?? "—"} icon={<Clock3 className="h-4 w-4" />} />
       </section>

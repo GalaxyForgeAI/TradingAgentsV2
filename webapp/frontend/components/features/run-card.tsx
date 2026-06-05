@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale } from "next-intl";
 
-import { pct, ratingColor } from "@/lib/format";
+import { fmtDate, pct, ratingColor } from "@/lib/format";
 import type { MemoryEntry } from "@/lib/types";
 
 export function RunCard({ entry }: { entry: MemoryEntry }) {
+  const locale = useLocale();
   return (
     <Link
       href={`/markets/${entry.ticker}`}
@@ -13,10 +15,10 @@ export function RunCard({ entry }: { entry: MemoryEntry }) {
     >
       <div>
         <div className="font-semibold tracking-tight transition group-hover:text-blue-300">{entry.ticker}</div>
-        <div className="text-xs text-zinc-500">{entry.date}</div>
+        <div className="text-xs text-zinc-500">{fmtDate(entry.date, locale)}</div>
       </div>
       <div className={`font-medium ${ratingColor(entry.rating)}`}>{entry.rating}</div>
-      <div className="w-20 text-right text-xs tabular-nums text-zinc-400">α {pct(entry.alpha)}</div>
+      <div className="w-20 text-right text-xs tabular-nums text-zinc-400">α {pct(entry.alpha, locale)}</div>
     </Link>
   );
 }
