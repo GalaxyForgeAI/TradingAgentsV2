@@ -18,5 +18,67 @@
     "new": "新建",
     "compare": "对比",
     "settings": "设置"
+  },
+  "landing": {
+    "badge": "v0.2.5 · 多智能体 LLM 交易框架",
+    "headlinePart1": "一家交易公司，",
+    "headlinePart2": "由 <accent>LLM 智能体</accent> 担纲。",
+    "subhead": "TradingAgents 为任意标的运转一支完整的交易团队 —— 专业分析师、多空研究辩论、交易员与风险委员会 —— 并把每一步推理实时流式发送到你的浏览器。",
+    "ctaStart": "发起分析",
+    "ctaOpenDashboard": "打开总览",
+    "pipeline": {
+      "analysts": "分析师",
+      "analystsSub": "×4",
+      "bullBear": "多空辩论",
+      "bullBearSub": "辩论",
+      "trader": "交易员",
+      "traderSub": "计划",
+      "riskTeam": "风险委员会",
+      "riskTeamSub": "×3",
+      "portfolioMgr": "投资经理",
+      "portfolioMgrSub": "决策"
+    },
+    "stats": {
+      "agents": "专业智能体",
+      "analystLenses": "分析师视角",
+      "providers": "LLM 提供商",
+      "markets": "Yahoo 覆盖市场"
+    },
+    "stagesEyebrow": "工作原理",
+    "stagesTitle": "五个阶段，一项决策",
+    "stagesSub": "每只标的依次流经各个专业角色。这些交接正是你在运行详情页看到的实时流。",
+    "stageLabel": "阶段 {n}",
+    "stage": {
+      "analystsTitle": "分析师",
+      "analystsBody": "市场、情绪、新闻、基本面四位分析师各自给出有据可查的报告。",
+      "researchTitle": "研究辩论",
+      "researchBody": "多头与空头研究员多轮辩论，最终由研究主管整合结论。",
+      "traderTitle": "交易员",
+      "traderBody": "交易员把研究结论转化为具体的投资计划。",
+      "riskTitle": "风险委员会",
+      "riskBody": "激进、保守、中性三位分析师对计划进行压力测试。",
+      "pmTitle": "投资经理",
+      "pmBody": "投资经理给出最终 BUY / SELL / HOLD 与评级置信度。"
+    },
+    "featuresEyebrow": "工作台特性",
+    "featuresTitle": "既看结论，更看过程",
+    "featuresSub": "CLI 只给你结论。工作台把整支交易团队都展现给你 —— 实时、可回放、可对比。",
+    "feature": {
+      "streamingTitle": "智能体实时流",
+      "streamingBody": "通过 SSE 实时接收每份报告、每次工具调用、每条辩论 —— 支持暂停、继续、回放。",
+      "debateTitle": "可视化的多空辩论",
+      "debateBody": "辩论按轮次以并排气泡呈现，让你读到推理本身，而不仅是结论。",
+      "logTitle": "决策日志与复盘",
+      "logBody": "每次运行都记录其实际收益，并附事后复盘说明什么有效。",
+      "chartsTitle": "按标的的图表",
+      "chartsBody": "K 线上叠加历次决策，并同步分析师所引用的技术指标。",
+      "modelsTitle": "任意模型、任意市场",
+      "modelsBody": "支持 OpenAI、Anthropic、Google、Qwen、GLM 等，覆盖 Yahoo Finance 全部市场。",
+      "compareTitle": "对比与回放",
+      "compareBody": "用不同模型重跑同一标的，把决策并排对比。"
+    },
+    "ctaTitle": "让团队开始工作",
+    "ctaBody": "选定标的与日期、挑好模型，看智能体辩论 —— 从第一份分析师报告，到投资经理的最终决策。",
+    "ctaDisclaimer": "研究框架 · 不构成任何投资建议"
   }
 }

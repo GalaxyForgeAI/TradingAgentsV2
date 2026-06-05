@@ -18,5 +18,67 @@
     "new": "New",
     "compare": "Compare",
     "settings": "Settings"
+  },
+  "landing": {
+    "badge": "v0.2.5 · Multi-Agent LLM Trading Framework",
+    "headlinePart1": "A trading firm,",
+    "headlinePart2": "staffed by <accent>LLM agents</accent>.",
+    "subhead": "TradingAgents runs a full desk over any ticker — specialist analysts, a bull-vs-bear research debate, a trader, and a risk committee — then streams every step of their reasoning to your browser in real time.",
+    "ctaStart": "Start an analysis",
+    "ctaOpenDashboard": "Open dashboard",
+    "pipeline": {
+      "analysts": "Analysts",
+      "analystsSub": "×4",
+      "bullBear": "Bull vs Bear",
+      "bullBearSub": "debate",
+      "trader": "Trader",
+      "traderSub": "plan",
+      "riskTeam": "Risk team",
+      "riskTeamSub": "×3",
+      "portfolioMgr": "Portfolio Mgr",
+      "portfolioMgrSub": "decision"
+    },
+    "stats": {
+      "agents": "Specialized agents",
+      "analystLenses": "Analyst lenses",
+      "providers": "LLM providers",
+      "markets": "Yahoo markets"
+    },
+    "stagesEyebrow": "How it works",
+    "stagesTitle": "Five stages, one decision",
+    "stagesSub": "Each ticker flows through specialized roles. The handoffs are exactly what you watch stream live on the run page.",
+    "stageLabel": "Stage {n}",
+    "stage": {
+      "analystsTitle": "Analysts",
+      "analystsBody": "Market, sentiment, news, and fundamentals analysts each file a grounded report.",
+      "researchTitle": "Research debate",
+      "researchBody": "Bull and bear researchers argue it out over multiple rounds; a manager synthesizes.",
+      "traderTitle": "Trader",
+      "traderBody": "The trader turns the research into a concrete investment plan.",
+      "riskTitle": "Risk committee",
+      "riskBody": "Aggressive, conservative, and neutral analysts stress-test the plan.",
+      "pmTitle": "Portfolio manager",
+      "pmBody": "The PM issues the final BUY / SELL / HOLD with a rated confidence."
+    },
+    "featuresEyebrow": "In the workbench",
+    "featuresTitle": "Built for watching the work, not just the verdict",
+    "featuresSub": "The CLI gave you a final call. The workbench gives you the whole desk — live, replayable, and comparable.",
+    "feature": {
+      "streamingTitle": "Live agent streaming",
+      "streamingBody": "Watch every report, tool call, and debate message arrive over SSE — pause, resume, and replay.",
+      "debateTitle": "Bull vs Bear, visualized",
+      "debateBody": "Debates render as side-by-side bubbles by round, so you can read the argument, not just the result.",
+      "logTitle": "Decision log & reflections",
+      "logBody": "Every run is recorded with its realized return and an after-the-fact reflection on what worked.",
+      "chartsTitle": "Per-ticker charts",
+      "chartsBody": "Candlesticks with your historical decisions overlaid, plus the indicators the analysts cite.",
+      "modelsTitle": "Any model, any market",
+      "modelsBody": "OpenAI, Anthropic, Google, Qwen, GLM, and more — across every market Yahoo Finance covers.",
+      "compareTitle": "Compare & replay",
+      "compareBody": "Re-run the same ticker on different models and put the decisions side by side."
+    },
+    "ctaTitle": "Put the desk to work",
+    "ctaBody": "Pick a ticker and a date, choose your models, and watch the agents debate it out — from the first analyst report to the portfolio manager's final call.",
+    "ctaDisclaimer": "Research framework · not financial advice"
   }
 }
