@@ -170,6 +170,9 @@
   "runDetail": {
     "status": "状态：{state}",
     "waiting": "等待输出…",
+    "connecting": "连接事件流中…",
+    "connectionBroken": "事件流已断开",
+    "streamError": "无法订阅运行 {runId}。运行 id 可能不存在、后端不可达，或 EventSource 被 CORS 拦截。",
     "errorTitleFallback": "未知错误",
     "agent": {
       "market_analyst": "市场分析师",

@@ -26,10 +26,18 @@ const REPORT_FIELD: Partial<Record<AgentName, string>> = {
 export default function RunDetail({ params }: { params: Promise<{ runId: string }> }) {
   const t = useTranslations("runDetail");
   const { runId } = use(params);
-  const { events } = useEventStream(`/api/runs/${runId}/stream`);
+  const { events, error: streamError } = useEventStream(`/api/runs/${runId}/stream`);
   const [state, setState] = useState<RunState>(initialRunState());
   const [selected, setSelected] = useState<AgentName | null>("market_analyst");
   const [cursor, setCursor] = useState(0);
+
+  // Distinguish three pre-event states so the page never silently looks
+  // "idle" while it's actually broken or warming up:
+  //   1. streamError + no events  → connection refused / 404 / CORS
+  //   2. no streamError + no events → still connecting / waiting on backend
+  //   3. events flowing → real status from applyEvent takes over
+  const connectionState: "connecting" | "broken" | "live" =
+    events.length > 0 ? "live" : streamError ? "broken" : "connecting";
 
   useEffect(() => {
     if (events.length <= cursor) return;
@@ -64,9 +72,14 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
       );
     }
     if (selected === "portfolio_manager") {
+      const decision = state.decision || state.reports.final_trade_decision;
+      // Without a real decision, an empty DecisionCard reads as "completed
+      // with no result" (renders "—" + "Run took 0.0s"). Show the same
+      // waiting placeholder the analyst panes use until the decision lands.
+      if (!decision) return <p className="text-sm text-zinc-500">{t("waiting")}</p>;
       return (
         <DecisionCard
-          decision={state.decision || state.reports.final_trade_decision || "—"}
+          decision={decision}
           rating={state.decision?.match(/BUY|SELL|HOLD/)?.[0] ?? null}
           durationMs={state.durationMs}
         />
@@ -80,14 +93,30 @@ export default function RunDetail({ params }: { params: Promise<{ runId: string 
   return (
     <main className="grid h-screen grid-cols-[260px_1fr_320px] gap-4 p-4">
       <aside className="overflow-y-auto rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mb-3">
-          <div className="text-xs uppercase text-zinc-500">{state.ticker || "—"} · {state.tradeDate || "—"}</div>
-          <div className="text-sm font-medium">{t("status", { state: state.status })}</div>
+        <div className="mb-3 pt-1">
+          <div className="text-xs uppercase leading-5 text-zinc-500">
+            {state.ticker || "—"} · {state.tradeDate || "—"}
+          </div>
+          <div className="text-sm font-medium">
+            {connectionState === "broken"
+              ? t("connectionBroken")
+              : connectionState === "connecting"
+                ? t("connecting")
+                : t("status", { state: state.status })}
+          </div>
         </div>
         <PipelineStepper agents={state.agents} selected={selected} onSelect={setSelected} />
       </aside>
 
       <section className="overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        {connectionState === "broken" && (
+          <div
+            role="alert"
+            className="mb-4 rounded border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          >
+            {t("streamError", { runId })}
+          </div>
+        )}
         {centerView}
       </section>
 

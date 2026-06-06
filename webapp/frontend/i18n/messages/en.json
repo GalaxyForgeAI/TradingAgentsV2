@@ -170,6 +170,9 @@
   "runDetail": {
     "status": "Status: {state}",
     "waiting": "Waiting for output…",
+    "connecting": "Connecting to stream…",
+    "connectionBroken": "Stream disconnected",
+    "streamError": "Could not subscribe to run {runId}. The run id may be unknown, the backend may be unreachable, or CORS may be blocking the EventSource.",
     "errorTitleFallback": "Unknown error",
     "agent": {
       "market_analyst": "Market Analyst",
