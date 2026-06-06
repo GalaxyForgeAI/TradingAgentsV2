@@ -164,6 +164,14 @@ export default function Settings() {
 
       <section className="space-y-4">
         <h2 className="text-lg font-medium">{t("defaults")}</h2>
+        {providers.length === 0 && (
+          <div
+            role="alert"
+            className="rounded border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          >
+            {t("backendUnreachable")}
+          </div>
+        )}
         <p className="text-xs text-zinc-500">{t("defaultsHelp")}</p>
 
         <FormRow label={t("field.provider")}>

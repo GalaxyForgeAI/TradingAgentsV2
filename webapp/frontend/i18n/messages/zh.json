@@ -164,7 +164,8 @@
     "testConnection": "测试连接",
     "testing": "测试中…",
     "testOk": "连接成功",
-    "testFail": "连接失败"
+    "testFail": "连接失败",
+    "backendUnreachable": "后端可达但未返回任何提供商。请检查 :8000 上是否运行 webapp.backend.main。"
   },
   "runDetail": {
     "status": "状态：{state}",
